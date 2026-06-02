@@ -1,0 +1,21 @@
+import axios from 'axios';
+
+const api = axios.create({
+    baseURL: '/api',  // ← Sin IP, usa el proxy de Vite
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token_usuario');
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
+export default api;
