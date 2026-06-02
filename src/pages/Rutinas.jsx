@@ -201,13 +201,23 @@ const Rutinas = ({ modoOscuro }) => {
   };
 
   // ── Lookup nombre ejercicio ─────────────────────────────────────────────
+  const obtenerNombreEjercicio = (e) => {
+    return e?.nombre_ejercicio
+      ?? e?.nombreEjercicio
+      ?? e?.nombre
+      ?? e?.titulo
+      ?? e?.descripcion
+      ?? '';
+  };
+
   const nombreEjercicio = (idEjercicio) => {
     const e = ejercicios.find(e => e.id_ejercicio === idEjercicio || e.idEjercicio === idEjercicio);
-    return e ? (e.nombre_ejercicio ?? e.nombreEjercicio ?? `Ejercicio #${idEjercicio}`) : `#${idEjercicio}`;
+    const nombre = obtenerNombreEjercicio(e);
+    return nombre ? nombre : `Ejercicio #${idEjercicio}`;
   };
 
   const ejerciciosFiltrados = ejercicios.filter(e => {
-    const nombre = e.nombre_ejercicio ?? e.nombreEjercicio ?? '';
+    const nombre = obtenerNombreEjercicio(e);
     return nombre.toLowerCase().includes(busquedaEjer.toLowerCase());
   });
 
@@ -435,7 +445,7 @@ const Rutinas = ({ modoOscuro }) => {
                   <option value="">— Selecciona un ejercicio —</option>
                   {ejerciciosFiltrados.map(e => (
                     <option key={e.id_ejercicio ?? e.idEjercicio} value={e.id_ejercicio ?? e.idEjercicio}>
-                      {e.nombre_ejercicio ?? e.nombreEjercicio} {e.musculo_objetivo ? `(${e.musculo_objetivo})` : ''}
+                      {obtenerNombreEjercicio(e)} {e.musculo_objetivo ?? e.musculoObjetivo ? `(${e.musculo_objetivo ?? e.musculoObjetivo})` : ''}
                     </option>
                   ))}
                 </Form.Select>

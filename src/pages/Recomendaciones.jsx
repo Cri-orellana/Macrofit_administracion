@@ -5,26 +5,26 @@ import MenuNavegacion from '../components/MenuNavegacion';
 const Recomendaciones = ({ modoOscuro }) => {
   // Datos simulados de recomendaciones
   const [recomendaciones, setRecomendaciones] = useState([
-    { id: 1, titulo: 'Pollo con Quínoa', tipo: 'Omnívora', calorias: 450 },
-    { id: 2, titulo: 'Bowl de Garbanzos', tipo: 'Vegana', calorias: 520 }
+    { id: 1, titulo: 'Pollo con Quínoa', tipo: 'Omnívora', calorias: 450, descripcion: 'Pechuga de pollo con quinoa, verduras y limón.', proteinas: 35, carbohidratos: 40, grasas: 12 },
+    { id: 2, titulo: 'Bowl de Garbanzos', tipo: 'Vegana', calorias: 520, descripcion: 'Bowl con garbanzos, quinoa, aguacate y salsa de tahini.', proteinas: 18, carbohidratos: 60, grasas: 22 }
   ]);
 
   // Estados para controlar la ventana emergente (Modal)
   const [mostrarModal, setMostrarModal] = useState(false);
-  const [nuevaRecomendacion, setNuevaRecomendacion] = useState({ titulo: '', tipo: 'Omnívora', calorias: '' });
+  const [nuevaRecomendacion, setNuevaRecomendacion] = useState({ titulo: '', tipo: 'Omnívora', calorias: '', descripcion: '', proteinas: '', carbohidratos: '', grasas: '' });
   const [editandoId, setEditandoId] = useState(null);
 
   // Funciones para abrir y cerrar el modal
   const abrirModal = () => {
     setEditandoId(null);
-    setNuevaRecomendacion({ titulo: '', tipo: 'Omnívora', calorias: '' });
+    setNuevaRecomendacion({ titulo: '', tipo: 'Omnívora', calorias: '', descripcion: '', proteinas: '', carbohidratos: '', grasas: '' });
     setMostrarModal(true);
   };
 
   const cerrarModal = () => {
     setMostrarModal(false);
     setEditandoId(null);
-    setNuevaRecomendacion({ titulo: '', tipo: 'Omnívora', calorias: '' }); // Limpiamos el formulario
+    setNuevaRecomendacion({ titulo: '', tipo: 'Omnívora', calorias: '', descripcion: '', proteinas: '', carbohidratos: '', grasas: '' }); // Limpiamos el formulario
   };
 
   const abrirModalEditarRecomendacion = (recomendacion) => {
@@ -32,7 +32,11 @@ const Recomendaciones = ({ modoOscuro }) => {
     setNuevaRecomendacion({
       titulo: recomendacion.titulo,
       tipo: recomendacion.tipo,
-      calorias: recomendacion.calorias
+      calorias: recomendacion.calorias,
+      descripcion: recomendacion.descripcion || '',
+      proteinas: recomendacion.proteinas ?? '',
+      carbohidratos: recomendacion.carbohidratos ?? '',
+      grasas: recomendacion.grasas ?? ''
     });
     setMostrarModal(true);
   };
@@ -86,6 +90,8 @@ const Recomendaciones = ({ modoOscuro }) => {
                   <th>Título / Nombre del Plato</th>
                   <th>Tipo de Alimentación</th>
                   <th>Calorías</th>
+                  <th>Descripción</th>
+                  <th>Macros</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -100,6 +106,10 @@ const Recomendaciones = ({ modoOscuro }) => {
                       </span>
                     </td>
                     <td>{rec.calorias} kcal</td>
+                    <td>{rec.descripcion || '—'}</td>
+                    <td>
+                      {rec.proteinas !== '' && `${rec.proteinas}g P`} {rec.carbohidratos !== '' && `${rec.carbohidratos}g C`} {rec.grasas !== '' && `${rec.grasas}g G`}
+                    </td>
                     <td>
                       <Button
                         variant="warning"
@@ -164,6 +174,57 @@ const Recomendaciones = ({ modoOscuro }) => {
                   onChange={(e) => setNuevaRecomendacion({...nuevaRecomendacion, calorias: e.target.value})}
                 />
               </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Descripción</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  placeholder="Describe el plato y sus macros"
+                  className={claseInput}
+                  value={nuevaRecomendacion.descripcion}
+                  onChange={(e) => setNuevaRecomendacion({...nuevaRecomendacion, descripcion: e.target.value})}
+                />
+              </Form.Group>
+
+              <div className="row g-3 mb-4">
+                <div className="col-md-4">
+                  <Form.Group>
+                    <Form.Label>Proteínas (g)</Form.Label>
+                    <Form.Control
+                      type="number"
+                      min="0"
+                      className={claseInput}
+                      value={nuevaRecomendacion.proteinas}
+                      onChange={(e) => setNuevaRecomendacion({...nuevaRecomendacion, proteinas: e.target.value})}
+                    />
+                  </Form.Group>
+                </div>
+                <div className="col-md-4">
+                  <Form.Group>
+                    <Form.Label>Carbohidratos (g)</Form.Label>
+                    <Form.Control
+                      type="number"
+                      min="0"
+                      className={claseInput}
+                      value={nuevaRecomendacion.carbohidratos}
+                      onChange={(e) => setNuevaRecomendacion({...nuevaRecomendacion, carbohidratos: e.target.value})}
+                    />
+                  </Form.Group>
+                </div>
+                <div className="col-md-4">
+                  <Form.Group>
+                    <Form.Label>Grasas (g)</Form.Label>
+                    <Form.Control
+                      type="number"
+                      min="0"
+                      className={claseInput}
+                      value={nuevaRecomendacion.grasas}
+                      onChange={(e) => setNuevaRecomendacion({...nuevaRecomendacion, grasas: e.target.value})}
+                    />
+                  </Form.Group>
+                </div>
+              </div>
 
               <div className="d-flex justify-content-end">
                 <Button variant="secondary" className="me-2" onClick={cerrarModal}>Cancelar</Button>
