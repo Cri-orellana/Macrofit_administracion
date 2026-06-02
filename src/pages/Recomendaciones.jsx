@@ -12,22 +12,48 @@ const Recomendaciones = ({ modoOscuro }) => {
   // Estados para controlar la ventana emergente (Modal)
   const [mostrarModal, setMostrarModal] = useState(false);
   const [nuevaRecomendacion, setNuevaRecomendacion] = useState({ titulo: '', tipo: 'Omnívora', calorias: '' });
+  const [editandoId, setEditandoId] = useState(null);
 
   // Funciones para abrir y cerrar el modal
-  const abrirModal = () => setMostrarModal(true);
+  const abrirModal = () => {
+    setEditandoId(null);
+    setNuevaRecomendacion({ titulo: '', tipo: 'Omnívora', calorias: '' });
+    setMostrarModal(true);
+  };
+
   const cerrarModal = () => {
     setMostrarModal(false);
+    setEditandoId(null);
     setNuevaRecomendacion({ titulo: '', tipo: 'Omnívora', calorias: '' }); // Limpiamos el formulario
+  };
+
+  const abrirModalEditarRecomendacion = (recomendacion) => {
+    setEditandoId(recomendacion.id);
+    setNuevaRecomendacion({
+      titulo: recomendacion.titulo,
+      tipo: recomendacion.tipo,
+      calorias: recomendacion.calorias
+    });
+    setMostrarModal(true);
   };
 
   // Función para simular el guardado
   const guardarRecomendacion = (e) => {
     e.preventDefault();
-    const nueva = {
-      id: recomendaciones.length + 1,
-      ...nuevaRecomendacion
-    };
-    setRecomendaciones([...recomendaciones, nueva]);
+
+    if (editandoId !== null) {
+      const actualizadas = recomendaciones.map((rec) =>
+        rec.id === editandoId ? { ...rec, ...nuevaRecomendacion } : rec
+      );
+      setRecomendaciones(actualizadas);
+    } else {
+      const nueva = {
+        id: recomendaciones.length + 1,
+        ...nuevaRecomendacion
+      };
+      setRecomendaciones([...recomendaciones, nueva]);
+    }
+
     cerrarModal();
   };
 
@@ -75,7 +101,14 @@ const Recomendaciones = ({ modoOscuro }) => {
                     </td>
                     <td>{rec.calorias} kcal</td>
                     <td>
-                      <Button variant="warning" size="sm" className="me-2 fw-bold text-dark">Editar</Button>
+                      <Button
+                        variant="warning"
+                        size="sm"
+                        className="me-2 fw-bold text-dark"
+                        onClick={() => abrirModalEditarRecomendacion(rec)}
+                      >
+                        Editar
+                      </Button>
                       <Button variant="danger" size="sm" className="fw-bold">Eliminar</Button>
                     </td>
                   </tr>
@@ -90,7 +123,7 @@ const Recomendaciones = ({ modoOscuro }) => {
       <Modal show={mostrarModal} onHide={cerrarModal} centered>
         <div className={modoOscuro ? 'bg-dark text-light' : 'bg-white text-dark'}>
           <Modal.Header closeButton className={modoOscuro ? 'border-secondary' : ''}>
-            <Modal.Title>Agregar Nueva Recomendación</Modal.Title>
+            <Modal.Title>{editandoId !== null ? 'Editar Recomendación' : 'Agregar Nueva Recomendación'}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form onSubmit={guardarRecomendacion}>
@@ -134,7 +167,9 @@ const Recomendaciones = ({ modoOscuro }) => {
 
               <div className="d-flex justify-content-end">
                 <Button variant="secondary" className="me-2" onClick={cerrarModal}>Cancelar</Button>
-                <Button variant="primary" type="submit">Guardar Plato</Button>
+                <Button variant="primary" type="submit">
+                  {editandoId !== null ? 'Guardar Cambios' : 'Guardar Plato'}
+                </Button>
               </div>
             </Form>
           </Modal.Body>
