@@ -78,7 +78,6 @@ const Usuarios = ({ modoOscuro }) => {
               <Table responsive striped bordered hover className={claseTabla}>
                 <thead>
                   <tr>
-                    <th>ID</th>
                     <th>Nombre</th>
                     <th>Correo</th>
                     <th>Edad</th>
@@ -93,7 +92,6 @@ const Usuarios = ({ modoOscuro }) => {
                   {usuariosFiltrados.length > 0 ? (
                     usuariosFiltrados.map((u) => (
                       <tr key={u.id_usuario}>
-                        <td>{u.id_usuario}</td>
                         <td>{u.nom_usuario ?? '—'}</td>
                         <td>{u.correo}</td>
                         <td>{u.edad ?? '—'}</td>

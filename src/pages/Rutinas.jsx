@@ -255,7 +255,6 @@ const Rutinas = ({ modoOscuro }) => {
               <Table responsive striped bordered hover className={claseTabla}>
                 <thead>
                   <tr>
-                    <th>ID</th>
                     <th>Nombre</th>
                     <th>Descripción</th>
                     <th>Estado</th>
@@ -265,7 +264,6 @@ const Rutinas = ({ modoOscuro }) => {
                 <tbody>
                   {rutinas.length > 0 ? rutinas.map((r) => (
                     <tr key={r.idRutina}>
-                      <td>{r.idRutina}</td>
                       <td className="fw-bold">{r.nombreRutina ?? '—'}</td>
                       <td className="text-truncate" style={{ maxWidth: 250 }}>{r.descripcion ?? '—'}</td>
                       <td>
