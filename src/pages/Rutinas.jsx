@@ -502,102 +502,123 @@ const Rutinas = ({ modoOscuro }) => {
       </Modal>
 
       {/* ══════════════════════════════════════════════════════════════════
-          MODAL: Crear Nuevo Ejercicio en Catálogo
-      ══════════════════════════════════════════════════════════════════ */}
-      <Modal show={modalNuevoEjer} onHide={() => setModalNuevoEjer(false)} size="lg" centered>
-        <div className={claseModal}>
-          <Modal.Header closeButton className={modoOscuro ? 'border-secondary' : ''}>
-            <Modal.Title>Crear Nuevo Ejercicio</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Form onSubmit={crearNuevoEjercicio}>
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Nombre del Ejercicio *</Form.Label>
-                    <Form.Control required type="text" placeholder="Ej: Press de Banca"
-                      className={claseInput} value={formNuevoEjer.nombre_ejercicio}
-                      onChange={e => setFormNuevoEjer({ ...formNuevoEjer, nombre_ejercicio: e.target.value })} />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Nivel de Dificultad</Form.Label>
-                    <Form.Select className={claseInput} value={formNuevoEjer.nivel_dificultad}
-                      onChange={e => setFormNuevoEjer({ ...formNuevoEjer, nivel_dificultad: e.target.value })}>
-                      <option value="Principiante">Principiante</option>
-                      <option value="Intermedio">Intermedio</option>
-                      <option value="Avanzado">Avanzado</option>
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Músculo Objetivo</Form.Label>
-                    <Form.Control type="text" placeholder="Ej: Pectorales"
-                      className={claseInput} value={formNuevoEjer.musculo_objetivo}
-                      onChange={e => setFormNuevoEjer({ ...formNuevoEjer, musculo_objetivo: e.target.value })} />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Zona Muscular</Form.Label>
-                    <Form.Control type="text" placeholder="Ej: Tren Superior"
-                      className={claseInput} value={formNuevoEjer.zona_muscular}
-                      onChange={e => setFormNuevoEjer({ ...formNuevoEjer, zona_muscular: e.target.value })} />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Implemento</Form.Label>
-                    <Form.Control type="text" placeholder="Ej: Barra, Mancuernas"
-                      className={claseInput} value={formNuevoEjer.implemento}
-                      onChange={e => setFormNuevoEjer({ ...formNuevoEjer, implemento: e.target.value })} />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>URL Imagen <small className="text-muted">opcional</small></Form.Label>
-                    <Form.Control type="text" placeholder="https://..."
-                      className={claseInput} value={formNuevoEjer.imagen_ejercicio}
-                      onChange={e => setFormNuevoEjer({ ...formNuevoEjer, imagen_ejercicio: e.target.value })} />
-                  </Form.Group>
-                </Col>
-                <Col md={12}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>URL Video <small className="text-muted">opcional</small></Form.Label>
-                    <Form.Control type="text" placeholder="https://youtube.com/..."
-                      className={claseInput} value={formNuevoEjer.video_ejercicio}
-                      onChange={e => setFormNuevoEjer({ ...formNuevoEjer, video_ejercicio: e.target.value })} />
-                  </Form.Group>
-                </Col>
-                <Col md={12}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Descripción</Form.Label>
-                    <Form.Control as="textarea" rows={3} placeholder="Descripción del ejercicio..."
-                      className={claseInput} value={formNuevoEjer.descripcion}
-                      onChange={e => setFormNuevoEjer({ ...formNuevoEjer, descripcion: e.target.value })} />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Check type="switch" label="Activo en catálogo" className="mb-3"
-                    checked={formNuevoEjer.activo_catalogo}
-                    onChange={e => setFormNuevoEjer({ ...formNuevoEjer, activo_catalogo: e.target.checked })} />
-                </Col>
-                <Col md={6}>
-                  <Form.Check type="switch" label="Ejercicio original" className="mb-3"
-                    checked={formNuevoEjer.original}
-                    onChange={e => setFormNuevoEjer({ ...formNuevoEjer, original: e.target.checked })} />
-                </Col>
-              </Row>
-              <div className="d-flex justify-content-end gap-2">
-                <Button variant="secondary" onClick={() => setModalNuevoEjer(false)}>Cancelar</Button>
-                <Button variant="primary" type="submit">Crear Ejercicio</Button>
-              </div>
-            </Form>
-          </Modal.Body>
+    MODAL: Crear Nuevo Ejercicio en Catálogo
+══════════════════════════════════════════════════════════════════ */}
+<Modal show={modalNuevoEjer} onHide={() => setModalNuevoEjer(false)} size="lg" centered>
+  <div className={claseModal}>
+    <Modal.Header closeButton className={modoOscuro ? 'border-secondary' : ''}>
+      <Modal.Title>Crear Nuevo Ejercicio</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+      <Form onSubmit={crearNuevoEjercicio}>
+        <Row>
+          <Col md={6}>
+            <Form.Group className="mb-3">
+              <Form.Label>Nombre del Ejercicio *</Form.Label>
+              <Form.Control required type="text" placeholder="Ej: Press de Banca"
+                className={claseInput} value={formNuevoEjer.nombre_ejercicio}
+                onChange={e => setFormNuevoEjer({ ...formNuevoEjer, nombre_ejercicio: e.target.value })} />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group className="mb-3">
+              <Form.Label>Nivel de Dificultad</Form.Label>
+              <Form.Select className={claseInput} value={formNuevoEjer.nivel_dificultad}
+                onChange={e => setFormNuevoEjer({ ...formNuevoEjer, nivel_dificultad: e.target.value })}>
+                <option value="Principiante">Principiante</option>
+                <option value="Ligero">Ligero</option>
+                <option value="Moderado">Moderado</option>
+                <option value="Intenso">Intenso</option>
+              </Form.Select>
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group className="mb-3">
+              <Form.Label>Músculo Objetivo</Form.Label>
+              <Form.Select className={claseInput} value={formNuevoEjer.musculo_objetivo}
+                onChange={e => setFormNuevoEjer({ ...formNuevoEjer, musculo_objetivo: e.target.value })}>
+                <option value="">— Selecciona —</option>
+                {[
+                  'Abdominales','Glúteos','Isquiotibiales','Cuádriceps','Pecho',
+                  'Espalda','Hombros','Bíceps','Tríceps','Pantorrillas',
+                  'Antebrazos','Aductores','Abductores','Flexores de cadera',
+                  'Erectores espinales','Dorsales','Trapecios'
+                ].map(m => <option key={m} value={m}>{m}</option>)}
+              </Form.Select>
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group className="mb-3">
+              <Form.Label>Zona Muscular</Form.Label>
+              <Form.Select className={claseInput} value={formNuevoEjer.zona_muscular}
+                onChange={e => setFormNuevoEjer({ ...formNuevoEjer, zona_muscular: e.target.value })}>
+                <option value="">— Selecciona —</option>
+                {[
+                  'Tren superior','Tren inferior','Core','Cuerpo completo'
+                ].map(z => <option key={z} value={z}>{z}</option>)}
+              </Form.Select>
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group className="mb-3">
+              <Form.Label>Implemento</Form.Label>
+              <Form.Select className={claseInput} value={formNuevoEjer.implemento}
+                onChange={e => setFormNuevoEjer({ ...formNuevoEjer, implemento: e.target.value })}>
+                <option value="">— Selecciona —</option>
+                {[
+                  'Peso corporal','Mancuerna','Mancuernas','Barra','Kettlebell',
+                  'Kettlebells','Polea','Máquina','Banda elástica','Bandas elásticas',
+                  'Balón medicinal','Balón de estabilidad','Banco',
+                  'Barra de dominadas','Suspensión','Sin implemento'
+                ].map(i => <option key={i} value={i}>{i}</option>)}
+              </Form.Select>
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group className="mb-3">
+              <Form.Label>URL Imagen <small className="text-muted">opcional</small></Form.Label>
+              <Form.Control type="text" placeholder="https://..."
+                className={claseInput} value={formNuevoEjer.imagen_ejercicio}
+                onChange={e => setFormNuevoEjer({ ...formNuevoEjer, imagen_ejercicio: e.target.value })} />
+            </Form.Group>
+          </Col>
+          <Col md={12}>
+            <Form.Group className="mb-3">
+              <Form.Label>URL Video <small className="text-muted">opcional</small></Form.Label>
+              <Form.Control type="text" placeholder="https://youtube.com/..."
+                className={claseInput} value={formNuevoEjer.video_ejercicio}
+                onChange={e => setFormNuevoEjer({ ...formNuevoEjer, video_ejercicio: e.target.value })} />
+            </Form.Group>
+          </Col>
+          <Col md={12}>
+            <Form.Group className="mb-3">
+              <Form.Label>Descripción</Form.Label>
+              <Form.Control as="textarea" rows={3} placeholder="Descripción del ejercicio..."
+                className={claseInput} value={formNuevoEjer.descripcion}
+                onChange={e => setFormNuevoEjer({ ...formNuevoEjer, descripcion: e.target.value })} />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Check type="switch" label="Activo en catálogo" className="mb-3"
+              checked={formNuevoEjer.activo_catalogo}
+              onChange={e => setFormNuevoEjer({ ...formNuevoEjer, activo_catalogo: e.target.checked })} />
+          </Col>
+          {/* Ejercicio original — comentado para uso futuro
+          <Col md={6}>
+            <Form.Check type="switch" label="Ejercicio original" className="mb-3"
+              checked={formNuevoEjer.original}
+              onChange={e => setFormNuevoEjer({ ...formNuevoEjer, original: e.target.checked })} />
+          </Col>
+          */}
+        </Row>
+        <div className="d-flex justify-content-end gap-2">
+          <Button variant="secondary" onClick={() => setModalNuevoEjer(false)}>Cancelar</Button>
+          <Button variant="primary" type="submit">Crear Ejercicio</Button>
         </div>
-      </Modal>
+      </Form>
+    </Modal.Body>
+  </div>
+</Modal>
 
     </div>
   );
