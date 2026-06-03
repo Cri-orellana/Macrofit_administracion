@@ -1,5 +1,6 @@
 import { Container, Navbar, Nav, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import logoApp from '../assets/logo_app.png';
 
 const MenuNavegacion = ({ modoOscuro }) => {
   const navegar = useNavigate();
@@ -14,7 +15,9 @@ const MenuNavegacion = ({ modoOscuro }) => {
   return (
     <Navbar className={claseBarraNavegacion} expand="lg" shadow="sm">
       <Container fluid>
-        <Navbar.Brand className="fw-bold text-primary">MacroFit Admin</Navbar.Brand>
+        <Navbar.Brand>
+          <img src={logoApp} alt="MacroFit Admin" height="60" />
+        </Navbar.Brand>
         <Navbar.Toggle aria-controls="menu-admin" />
         <Navbar.Collapse id="menu-admin">
           <Nav className="me-auto">
