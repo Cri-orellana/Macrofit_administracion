@@ -8,12 +8,18 @@ const HistorialUsuario = ({ modoOscuro }) => {
   const { id } = useParams();
   const navegar = useNavigate();
 
+  // Estados del usuario
   const [u,         setU]         = useState(null);
   const [objetivos, setObjetivos] = useState([]);
   const [niveles,   setNiveles]   = useState([]);
   const [cargando,  setCargando]  = useState(true);
   const [error,     setError]     = useState('');
 
+  // Estados de la Rutina
+  const [rutinaActiva, setRutinaActiva] = useState(null);
+  const [cargandoRutina, setCargandoRutina] = useState(true);
+
+  // Cargar datos del usuario
   useEffect(() => {
     const cargar = async () => {
       try {
@@ -32,6 +38,29 @@ const HistorialUsuario = ({ modoOscuro }) => {
       }
     };
     cargar();
+  }, [id]);
+
+  // Cargar Rutina Activa
+  useEffect(() => {
+    const cargarRutinaDelUsuario = async () => {
+      try {
+        // Busca si tiene rutina asignada
+        const resAsignacion = await api.get(`/rutina-usuario/usuario/${id}/activa`);
+        
+        // Si encuentra asignación, trae los detalles de esa rutina
+        if (resAsignacion.data && resAsignacion.data.idRutina) {
+          const resRutina = await api.get(`/rutinas/${resAsignacion.data.idRutina}`);
+          setRutinaActiva(resRutina.data);
+        }
+      } catch (error) {
+        // 404 significa que no tiene rutina activa
+        setRutinaActiva(null);
+      } finally {
+        setCargandoRutina(false);
+      }
+    };
+
+    cargarRutinaDelUsuario();
   }, [id]);
 
   const nombreObjetivo = (idObj) =>
@@ -70,8 +99,33 @@ const HistorialUsuario = ({ modoOscuro }) => {
           </Badge>
         </h2>
 
-        <Row className="g-4">
+        {/* ════════ TARJETA DE RUTINA ASIGNADA ════════ */}
+        <Row className="mb-4">
+          <Col>
+            <Card className={claseTarjeta}>
+              <Card.Header className="fw-bold bg-info text-dark">🏋️‍♂️ Rutina de Entrenamiento Asignada</Card.Header>
+              <Card.Body>
+                {cargandoRutina ? (
+                  <div className="text-center py-2"><Spinner animation="border" size="sm" variant="info" /></div>
+                ) : rutinaActiva ? (
+                  <div>
+                    <h4 className="fw-bold text-success mb-2">{rutinaActiva.nombreRutina}</h4>
+                    <p className={`mb-0 ${modoOscuro ? 'text-light' : 'text-muted'}`}>
+                      {rutinaActiva.descripcion ?? 'Esta rutina no tiene descripción.'}
+                    </p>
+                  </div>
+                ) : (
+                  <Alert variant="warning" className="m-0 text-center fw-bold">
+                    Este usuario no tiene ninguna rutina activa en este momento.
+                  </Alert>
+                )}
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+        {/* ════════════════════════════════════════════ */}
 
+        <Row className="g-4">
           {/* Datos Personales */}
           <Col md={6}>
             <Card className={`h-100 ${claseTarjeta}`}>
@@ -122,7 +176,6 @@ const HistorialUsuario = ({ modoOscuro }) => {
               </Card.Body>
             </Card>
           </Col>
-
         </Row>
 
         {/* Historial de pesos — solo si el backend lo incluye */}
@@ -157,7 +210,6 @@ const HistorialUsuario = ({ modoOscuro }) => {
             </Card.Body>
           </Card>
         )}
-
       </Container>
     </div>
   );

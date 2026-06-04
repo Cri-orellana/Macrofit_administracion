@@ -26,6 +26,13 @@ const Rutinas = ({ modoOscuro }) => {
   const [vista,      setVista]      = useState('rutinas'); // 'rutinas' o 'ejercicios'
   const [busquedaEjercicios, setBusquedaEjercicios] = useState('');
 
+  // ── Estado Asignación de Rutina a Usuario ──────────────────────────────
+  const [modalAsignar, setModalAsignar] = useState(false);
+  const [rutinaAAsignar, setRutinaAAsignar] = useState(null);
+  const [usuariosLista, setUsuariosLista] = useState([]);
+  const [busquedaUsuarioModal, setBusquedaUsuarioModal] = useState('');
+  const [cargandoUsuarios, setCargandoUsuarios] = useState(false);
+
   // ── Modal: crear / editar rutina ────────────────────────────────────────
   const [modalRutina,    setModalRutina]    = useState(false);
   const [editandoRutina, setEditandoRutina] = useState(null);  // null = nueva
@@ -97,6 +104,48 @@ const Rutinas = ({ modoOscuro }) => {
   }, []);
 
   // ════════════════════════════════════════════════════════════════════════
+  // NUEVO: ASIGNAR RUTINA A USUARIO
+  // ════════════════════════════════════════════════════════════════════════
+  const abrirModalAsignar = async (rutina) => {
+    setRutinaAAsignar(rutina);
+    setBusquedaUsuarioModal('');
+    setModalAsignar(true);
+    setCargandoUsuarios(true);
+    try {
+      const res = await api.get('/usuarios');
+      setUsuariosLista(res.data);
+    } catch (e) {
+      setError('No se pudo cargar la lista de usuarios.');
+    } finally {
+      setCargandoUsuarios(false);
+    }
+  };
+
+  const confirmarAsignacion = async (usuario) => {
+    if (!window.confirm(`¿Estás seguro de asignar la rutina "${rutinaAAsignar.nombreRutina}" a ${usuario.nom_usuario}?`)) return;
+    
+    try {
+      const payload = {
+        idRutina: rutinaAAsignar.idRutina,
+        idUsuario: usuario.id_usuario,
+        fechaInicio: new Date().toISOString().split('T')[0], // Fecha actual
+        activo: true
+      };
+      
+      await api.post('/rutina-usuario', payload);
+      alert(`✅ Rutina asignada exitosamente a ${usuario.nom_usuario}`);
+      setModalAsignar(false);
+    } catch (e) {
+      setError('Ocurrió un error al intentar asignar la rutina.');
+    }
+  };
+
+  const usuariosFiltradosModal = usuariosLista.filter(u =>
+    u.nom_usuario?.toLowerCase().includes(busquedaUsuarioModal.toLowerCase()) ||
+    u.correo?.toLowerCase().includes(busquedaUsuarioModal.toLowerCase())
+  );
+
+  // ════════════════════════════════════════════════════════════════════════
   // CRUD Rutinas
   // ════════════════════════════════════════════════════════════════════════
   const abrirModalNuevaRutina = () => {
@@ -108,7 +157,7 @@ const Rutinas = ({ modoOscuro }) => {
   const abrirModalEditarRutina = (rutina) => {
     setEditandoRutina(rutina);
     setFormRutina({
-      nombreRutina:    rutina.nombreRutina   ?? '',
+      nombreRutina:    rutina.nombreRutina  ?? '',
       descripcion:     rutina.descripcion    ?? '',
       activoCatalogo:  rutina.activoCatalogo ?? true,
     });
@@ -168,7 +217,6 @@ const Rutinas = ({ modoOscuro }) => {
     }
   };
 
-  // ── Agregar ejercicio a rutina ──────────────────────────────────────────
   const abrirModalAgregarEjer = () => {
     setBusquedaEjer('');
     setFormEjercicioRut({ idEjercicio: '', orden: ejerciciosRutina.length + 1, series: 3, repeticiones: 10, tiempoSeg: '', pesoReferencia: '' });
@@ -208,68 +256,65 @@ const Rutinas = ({ modoOscuro }) => {
     setModalNuevoEjer(true);
   };
 
-const abrirModalEditarEjercicio = (ejercicio) => {
-  setEditandoEjercicio(ejercicio);
-  setFormNuevoEjer({
-    nombre_ejercicio: ejercicio.nombreEjercicio  ?? '',
-    descripcion:      ejercicio.descripcion      ?? '',
-    musculo_objetivo: ejercicio.musculoObjetivo  ?? '',
-    zona_muscular:    ejercicio.zonaMuscular      ?? '',
-    implemento:       ejercicio.implemento        ?? '',
-    nivel_dificultad: ejercicio.nivelDificultad   ?? 'Principiante',
-    imagen_ejercicio: ejercicio.imagenEjercicio   ?? '',
-    video_ejercicio:  ejercicio.videoEjercicio    ?? '',
-    activo_catalogo:  ejercicio.activoCatalogo    ?? true,
-    original:         ejercicio.original          ?? true,
-  });
-  setModalNuevoEjer(true);
-};
+  const abrirModalEditarEjercicio = (ejercicio) => {
+    setEditandoEjercicio(ejercicio);
+    setFormNuevoEjer({
+      nombre_ejercicio: ejercicio.nombreEjercicio  ?? '',
+      descripcion:      ejercicio.descripcion      ?? '',
+      musculo_objetivo: ejercicio.musculoObjetivo  ?? '',
+      zona_muscular:    ejercicio.zonaMuscular      ?? '',
+      implemento:       ejercicio.implemento        ?? '',
+      nivel_dificultad: ejercicio.nivelDificultad   ?? 'Principiante',
+      imagen_ejercicio: ejercicio.imagenEjercicio   ?? '',
+      video_ejercicio:  ejercicio.videoEjercicio    ?? '',
+      activo_catalogo:  ejercicio.activoCatalogo    ?? true,
+      original:         ejercicio.original          ?? true,
+    });
+    setModalNuevoEjer(true);
+  };
 
   const abrirModalVerEjercicio = (ejercicio) => {
     setEjercicioSeleccionado(ejercicio);
     setModalVerEjer(true);
   };
 
-const guardarEjercicio = async (e) => {
-  e.preventDefault();
-  try {
-    // ✅ Payload con camelCase para que coincida con Ejercicio.java
-    const payload = {
-      nombreEjercicio:  formNuevoEjer.nombre_ejercicio,
-      descripcion:      formNuevoEjer.descripcion,
-      musculoObjetivo:  formNuevoEjer.musculo_objetivo,
-      zonaMuscular:     formNuevoEjer.zona_muscular,
-      implemento:       formNuevoEjer.implemento,
-      nivelDificultad:  formNuevoEjer.nivel_dificultad,
-      imagenEjercicio:  formNuevoEjer.imagen_ejercicio,
-      videoEjercicio:   formNuevoEjer.video_ejercicio,
-      activoCatalogo:   formNuevoEjer.activo_catalogo,
-      // original: formNuevoEjer.original, // comentado para uso futuro
-    };
+  const guardarEjercicio = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        nombreEjercicio:  formNuevoEjer.nombre_ejercicio,
+        descripcion:      formNuevoEjer.descripcion,
+        musculoObjetivo:  formNuevoEjer.musculo_objetivo,
+        zonaMuscular:     formNuevoEjer.zona_muscular,
+        implemento:       formNuevoEjer.implemento,
+        nivelDificultad:  formNuevoEjer.nivel_dificultad,
+        imagenEjercicio:  formNuevoEjer.imagen_ejercicio,
+        videoEjercicio:   formNuevoEjer.video_ejercicio,
+        activoCatalogo:   formNuevoEjer.activo_catalogo,
+      };
 
-    if (editandoEjercicio) {
-      const id = editandoEjercicio.idEjercicio ?? editandoEjercicio.id_ejercicio ?? editandoEjercicio.id;
-      await api.put(`/ejercicios/${id}`, payload);
-    } else {
-      await api.post('/ejercicios', payload);
+      if (editandoEjercicio) {
+        const id = editandoEjercicio.idEjercicio ?? editandoEjercicio.id_ejercicio ?? editandoEjercicio.id;
+        await api.put(`/ejercicios/${id}`, payload);
+      } else {
+        await api.post('/ejercicios', payload);
+      }
+
+      await cargarEjercicios();
+      setEditandoEjercicio(null);
+      setModalNuevoEjer(false);
+      setFormNuevoEjer({
+        nombre_ejercicio: '', descripcion: '', musculo_objetivo: '', zona_muscular: '',
+        implemento: '', nivel_dificultad: 'Principiante', imagen_ejercicio: '',
+        video_ejercicio: '', activo_catalogo: true, original: true
+      });
+    } catch {
+      setError('No se pudo guardar el ejercicio.');
     }
-
-    await cargarEjercicios();
-    setEditandoEjercicio(null);
-    setModalNuevoEjer(false);
-    setFormNuevoEjer({
-      nombre_ejercicio: '', descripcion: '', musculo_objetivo: '', zona_muscular: '',
-      implemento: '', nivel_dificultad: 'Principiante', imagen_ejercicio: '',
-      video_ejercicio: '', activo_catalogo: true, original: true
-    });
-  } catch {
-    setError('No se pudo guardar el ejercicio.');
-  }
-};
+  };
 
   // ── Lookup nombre ejercicio ─────────────────────────────────────────────
   const obtenerNombreEjercicio = (e) => e?.nombreEjercicio ?? '';
-
 
   const nombreEjercicio = (idEjercicio) => {
     const e = ejercicios.find(e => e.id_ejercicio === idEjercicio || e.idEjercicio === idEjercicio);
@@ -354,14 +399,15 @@ const guardarEjercicio = async (e) => {
                   <tbody>
                     {rutinas.length > 0 ? rutinas.map((r) => (
                       <tr key={r.idRutina}>
-                        <td className="fw-bold">{r.nombreRutina ?? '—'}</td>
-                        <td className="text-truncate" style={{ maxWidth: 250 }}>{r.descripcion ?? '—'}</td>
-                        <td>
+                        <td className="fw-bold align-middle">{r.nombreRutina ?? '—'}</td>
+                        <td className="text-truncate align-middle" style={{ maxWidth: 250 }}>{r.descripcion ?? '—'}</td>
+                        <td className="align-middle">
                           <Badge bg={r.activoCatalogo ? 'success' : 'secondary'}>
                             {r.activoCatalogo ? 'Activa' : 'Inactiva'}
                           </Badge>
                         </td>
-                        <td>
+                        <td className="align-middle">
+                          <Button variant="success" size="sm" className="me-1 text-white fw-bold" onClick={() => abrirModalAsignar(r)}>Asignar</Button>
                           <Button variant="info"    size="sm" className="me-1 text-white fw-bold" onClick={() => abrirModalEjercicios(r)}>Ver Ejercicios</Button>
                           <Button variant="warning" size="sm" className="me-1 fw-bold text-dark"  onClick={() => abrirModalEditarRutina(r)}>Editar</Button>
                           <Button variant="danger"  size="sm" className="fw-bold"                 onClick={() => eliminarRutina(r.idRutina)}>Eliminar</Button>
@@ -405,7 +451,6 @@ const guardarEjercicio = async (e) => {
                     </thead>
                     <tbody>
                       {ejerciciosFiltradosLista.length > 0 ? ejerciciosFiltradosLista.map((e) => {
-                        // ✅ Reemplaza estas líneas:
                         const nombre      = e.nombreEjercicio  ?? '—';
                         const musculo     = e.musculoObjetivo  ?? '—';
                         const zona        = e.zonaMuscular     ?? '—';
@@ -426,18 +471,9 @@ const guardarEjercicio = async (e) => {
                               </Badge>
                             </td>
                             <td>
-                              <Button variant="outline-primary" size="sm" className="me-1"
-                                onClick={() => abrirModalVerEjercicio(e)}>
-                                Ver
-                              </Button>
-                              <Button variant="outline-warning" size="sm" className="me-1 text-dark"
-                                onClick={() => abrirModalEditarEjercicio(e)}>
-                                Editar
-                              </Button>
-                              <Button variant="outline-danger" size="sm"
-                                onClick={() => eliminarEjercicio(idEjercicio)}>
-                                Borrar
-                              </Button>
+                              <Button variant="outline-primary" size="sm" className="me-1" onClick={() => abrirModalVerEjercicio(e)}>Ver</Button>
+                              <Button variant="outline-warning" size="sm" className="me-1 text-dark" onClick={() => abrirModalEditarEjercicio(e)}>Editar</Button>
+                              <Button variant="outline-danger" size="sm" onClick={() => eliminarEjercicio(idEjercicio)}>Borrar</Button>
                             </td>
                           </tr>
                         );
@@ -452,6 +488,56 @@ const guardarEjercicio = async (e) => {
           </Card.Body>
         </Card>
       </Container>
+
+      {/* ══════════════════════════════════════════════════════════════════
+          MODAL: Asignar Rutina a Usuario
+      ══════════════════════════════════════════════════════════════════ */}
+      <Modal show={modalAsignar} onHide={() => setModalAsignar(false)} size="lg" centered>
+        <div className={claseModal}>
+          <Modal.Header closeButton className={modoOscuro ? 'border-secondary' : ''}>
+            <Modal.Title>Asignar Rutina: <span className="text-success">{rutinaAAsignar?.nombreRutina}</span></Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form.Control
+              type="text"
+              placeholder="🔍 Buscar usuario por nombre o correo..."
+              value={busquedaUsuarioModal}
+              onChange={(e) => setBusquedaUsuarioModal(e.target.value)}
+              className={`mb-3 ${claseInput}`}
+            />
+            {cargandoUsuarios ? (
+              <div className="text-center py-4"><Spinner animation="border" variant="success" /></div>
+            ) : (
+              <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                <Table responsive hover className={claseTabla} size="sm">
+                  <thead>
+                    <tr>
+                      <th>Usuario</th>
+                      <th>Correo</th>
+                      <th>Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {usuariosFiltradosModal.length > 0 ? usuariosFiltradosModal.map(u => (
+                      <tr key={u.id_usuario}>
+                        <td className="align-middle fw-bold">{u.nom_usuario}</td>
+                        <td className="align-middle">{u.correo}</td>
+                        <td className="align-middle text-end">
+                          <Button variant="outline-success" size="sm" onClick={() => confirmarAsignacion(u)}>
+                            Asignar a este
+                          </Button>
+                        </td>
+                      </tr>
+                    )) : (
+                      <tr><td colSpan="3" className="text-center py-3">No se encontraron usuarios</td></tr>
+                    )}
+                  </tbody>
+                </Table>
+              </div>
+            )}
+          </Modal.Body>
+        </div>
+      </Modal>
 
       {/* ══════════════════════════════════════════════════════════════════
           MODAL: Crear / Editar Rutina
@@ -500,14 +586,10 @@ const guardarEjercicio = async (e) => {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-
-            {/* ── Aviso días (solo informativo) ── */}
             <Card className={`mb-4 border-info ${modoOscuro ? 'bg-dark' : 'bg-light'}`}>
               <Card.Body className="py-2">
                 <Row className="align-items-center">
-                  <Col xs="auto">
-                    <span className="text-info fw-bold">📅 Días sugeridos por semana:</span>
-                  </Col>
+                  <Col xs="auto"><span className="text-info fw-bold">📅 Días sugeridos por semana:</span></Col>
                   <Col xs="auto">
                     <div className="d-flex align-items-center gap-2">
                       <Button variant="outline-info" size="sm" onClick={() => setDiasSemana(Math.max(1, diasSemana - 1))}>−</Button>
@@ -525,7 +607,6 @@ const guardarEjercicio = async (e) => {
               </Card.Body>
             </Card>
 
-            {/* ── Lista ejercicios ── */}
             {cargandoEjer ? (
               <div className="text-center py-4"><Spinner animation="border" variant="primary" /></div>
             ) : (
@@ -538,41 +619,32 @@ const guardarEjercicio = async (e) => {
                     + Agregar Ejercicio
                   </Button>
                 </div>
-
                 {ejerciciosRutina.length === 0 ? (
                   <Alert variant="info">Esta rutina aún no tiene ejercicios. ¡Agrega el primero!</Alert>
                 ) : (
                   <Table responsive striped bordered hover className={claseTabla}>
                     <thead>
                       <tr>
-                        <th>#</th>
-                        <th>Ejercicio</th>
-                        <th>Series</th>
-                        <th>Reps</th>
-                        <th>Tiempo (seg)</th>
-                        <th>Peso Ref. (kg)</th>
-                        <th></th>
+                        <th>#</th><th>Ejercicio</th><th>Series</th><th>Reps</th><th>Tiempo (seg)</th><th>Peso Ref. (kg)</th><th></th>
                       </tr>
                     </thead>
                     <tbody>
-                      {[...ejerciciosRutina]
-                        .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0))
-                        .map((re) => (
-                          <tr key={re.idRutinaEjercicio}>
-                            <td><Badge bg="secondary">{re.orden ?? '—'}</Badge></td>
-                            <td className="fw-bold">{nombreEjercicio(re.idEjercicio)}</td>
-                            <td>{re.series ?? '—'}</td>
-                            <td>{re.repeticiones ?? '—'}</td>
-                            <td>{re.tiempoSeg ?? '—'}</td>
-                            <td>{re.pesoReferencia ? `${re.pesoReferencia} kg` : '—'}</td>
-                            <td>
-                              <Button variant="danger" size="sm" className="fw-bold"
-                                onClick={() => eliminarEjercicioDeRutina(re.idRutinaEjercicio)}>
-                                Quitar
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
+                      {[...ejerciciosRutina].sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)).map((re) => (
+                        <tr key={re.idRutinaEjercicio}>
+                          <td><Badge bg="secondary">{re.orden ?? '—'}</Badge></td>
+                          <td className="fw-bold">{nombreEjercicio(re.idEjercicio)}</td>
+                          <td>{re.series ?? '—'}</td>
+                          <td>{re.repeticiones ?? '—'}</td>
+                          <td>{re.tiempoSeg ?? '—'}</td>
+                          <td>{re.pesoReferencia ? `${re.pesoReferencia} kg` : '—'}</td>
+                          <td>
+                            <Button variant="danger" size="sm" className="fw-bold"
+                              onClick={() => eliminarEjercicioDeRutina(re.idRutinaEjercicio)}>
+                              Quitar
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </Table>
                 )}
@@ -595,8 +667,6 @@ const guardarEjercicio = async (e) => {
           </Modal.Header>
           <Modal.Body>
             <Form onSubmit={agregarEjercicioARutina}>
-
-              {/* Buscador de ejercicio */}
               <Form.Group className="mb-2">
                 <Form.Label>Buscar ejercicio</Form.Label>
                 <Form.Control type="text" placeholder="Escribe para filtrar..."
@@ -614,7 +684,6 @@ const guardarEjercicio = async (e) => {
                   ))}
                 </Form.Select>
               </Form.Group>
-
               <Row>
                 <Col xs={6}>
                   <Form.Group className="mb-3">
@@ -657,7 +726,6 @@ const guardarEjercicio = async (e) => {
                   </Form.Group>
                 </Col>
               </Row>
-
               <div className="d-flex justify-content-end gap-2">
                 <Button variant="secondary" onClick={() => setModalAgregarEjer(false)}>Cancelar</Button>
                 <Button variant="success" type="submit">Agregar</Button>
@@ -668,162 +736,158 @@ const guardarEjercicio = async (e) => {
       </Modal>
 
       {/* ══════════════════════════════════════════════════════════════════
-    MODAL: Crear Nuevo Ejercicio en Catálogo
-══════════════════════════════════════════════════════════════════ */}
-<Modal show={modalNuevoEjer} onHide={() => setModalNuevoEjer(false)} size="lg" centered>
-  <div className={claseModal}>
-    <Modal.Header closeButton className={modoOscuro ? 'border-secondary' : ''}>
-      <Modal.Title>{editandoEjercicio ? 'Editar Ejercicio' : 'Crear Nuevo Ejercicio'}</Modal.Title>
-    </Modal.Header>
-    <Modal.Body>
-      <Form onSubmit={guardarEjercicio}>
-        <Row>
-          <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Nombre del Ejercicio *</Form.Label>
-              <Form.Control required type="text" placeholder="Ej: Press de Banca"
-                className={claseInput} value={formNuevoEjer.nombre_ejercicio}
-                onChange={e => setFormNuevoEjer({ ...formNuevoEjer, nombre_ejercicio: e.target.value })} />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Nivel de Dificultad</Form.Label>
-              <Form.Select value={formNuevoEjer.nivel_dificultad}
-                onChange={e => setFormNuevoEjer({ ...formNuevoEjer, nivel_dificultad: e.target.value })}>
-                <option value="Principiante">Principiante</option>
-                <option value="Ligero">Ligero</option>
-                <option value="Moderado">Moderado</option>
-                <option value="Intenso">Intenso</option>
-              </Form.Select>
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Músculo Objetivo</Form.Label>
-              <Form.Select value={formNuevoEjer.musculo_objetivo}
-                onChange={e => setFormNuevoEjer({ ...formNuevoEjer, musculo_objetivo: e.target.value })}>
-                <option value="">— Selecciona —</option>
-                {[
-                  'Abdominales','Glúteos','Isquiotibiales','Cuádriceps','Pecho',
-                  'Espalda','Hombros','Bíceps','Tríceps','Pantorrillas',
-                  'Antebrazos','Aductores','Abductores','Flexores de cadera',
-                  'Erectores espinales','Dorsales','Trapecios'
-                ].map(m => <option key={m} value={m}>{m}</option>)}
-              </Form.Select>
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Zona Muscular</Form.Label>
-              <Form.Select value={formNuevoEjer.zona_muscular}
-                onChange={e => setFormNuevoEjer({ ...formNuevoEjer, zona_muscular: e.target.value })}>
-                <option value="">— Selecciona —</option>
-                {[
-                  'Tren superior','Tren inferior','Core','Cuerpo completo'
-                ].map(z => <option key={z} value={z}>{z}</option>)}
-              </Form.Select>
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Implemento</Form.Label>
-              <Form.Select value={formNuevoEjer.implemento}
-                onChange={e => setFormNuevoEjer({ ...formNuevoEjer, implemento: e.target.value })}>
-                <option value="">— Selecciona —</option>
-                {[
-                  'Peso corporal','Mancuerna','Mancuernas','Barra','Kettlebell',
-                  'Kettlebells','Polea','Máquina','Banda elástica','Bandas elásticas',
-                  'Balón medicinal','Balón de estabilidad','Banco',
-                  'Barra de dominadas','Suspensión','Sin implemento'
-                ].map(i => <option key={i} value={i}>{i}</option>)}
-              </Form.Select>
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>URL Imagen <small className="text-muted">opcional</small></Form.Label>
-              <Form.Control type="text" placeholder="https://..."
-                className={claseInput} value={formNuevoEjer.imagen_ejercicio}
-                onChange={e => setFormNuevoEjer({ ...formNuevoEjer, imagen_ejercicio: e.target.value })} />
-            </Form.Group>
-          </Col>
-          <Col md={12}>
-            <Form.Group className="mb-3">
-              <Form.Label>URL Video <small className="text-muted">opcional</small></Form.Label>
-              <Form.Control type="text" placeholder="https://youtube.com/..."
-                className={claseInput} value={formNuevoEjer.video_ejercicio}
-                onChange={e => setFormNuevoEjer({ ...formNuevoEjer, video_ejercicio: e.target.value })} />
-            </Form.Group>
-          </Col>
-          <Col md={12}>
-            <Form.Group className="mb-3">
-              <Form.Label>Descripción</Form.Label>
-              <Form.Control as="textarea" rows={3} placeholder="Descripción del ejercicio..."
-                className={claseInput} value={formNuevoEjer.descripcion}
-                onChange={e => setFormNuevoEjer({ ...formNuevoEjer, descripcion: e.target.value })} />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Check type="switch" label="Activo en catálogo" className="mb-3"
-              checked={formNuevoEjer.activo_catalogo}
-              onChange={e => setFormNuevoEjer({ ...formNuevoEjer, activo_catalogo: e.target.checked })} />
-          </Col>
-          {/* Ejercicio original — comentado para uso futuro
-          <Col md={6}>
-            <Form.Check type="switch" label="Ejercicio original" className="mb-3"
-              checked={formNuevoEjer.original}
-              onChange={e => setFormNuevoEjer({ ...formNuevoEjer, original: e.target.checked })} />
-          </Col>
-          */}
-        </Row>
-        <div className="d-flex justify-content-end gap-2">
-          <Button variant="secondary" onClick={() => setModalNuevoEjer(false)}>Cancelar</Button>
-          <Button variant="primary" type="submit">
-            {editandoEjercicio ? 'Actualizar Ejercicio' : 'Crear Ejercicio'}
-          </Button>
+          MODAL: Crear Nuevo Ejercicio en Catálogo
+      ══════════════════════════════════════════════════════════════════ */}
+      <Modal show={modalNuevoEjer} onHide={() => setModalNuevoEjer(false)} size="lg" centered>
+        <div className={claseModal}>
+          <Modal.Header closeButton className={modoOscuro ? 'border-secondary' : ''}>
+            <Modal.Title>{editandoEjercicio ? 'Editar Ejercicio' : 'Crear Nuevo Ejercicio'}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form onSubmit={guardarEjercicio}>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Nombre del Ejercicio *</Form.Label>
+                    <Form.Control required type="text" placeholder="Ej: Press de Banca"
+                      className={claseInput} value={formNuevoEjer.nombre_ejercicio}
+                      onChange={e => setFormNuevoEjer({ ...formNuevoEjer, nombre_ejercicio: e.target.value })} />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Nivel de Dificultad</Form.Label>
+                    <Form.Select value={formNuevoEjer.nivel_dificultad}
+                      onChange={e => setFormNuevoEjer({ ...formNuevoEjer, nivel_dificultad: e.target.value })}>
+                      <option value="Principiante">Principiante</option>
+                      <option value="Ligero">Ligero</option>
+                      <option value="Moderado">Moderado</option>
+                      <option value="Intenso">Intenso</option>
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Músculo Objetivo</Form.Label>
+                    <Form.Select value={formNuevoEjer.musculo_objetivo}
+                      onChange={e => setFormNuevoEjer({ ...formNuevoEjer, musculo_objetivo: e.target.value })}>
+                      <option value="">— Selecciona —</option>
+                      {[
+                        'Abdominales','Glúteos','Isquiotibiales','Cuádriceps','Pecho',
+                        'Espalda','Hombros','Bíceps','Tríceps','Pantorrillas',
+                        'Antebrazos','Aductores','Abductores','Flexores de cadera',
+                        'Erectores espinales','Dorsales','Trapecios'
+                      ].map(m => <option key={m} value={m}>{m}</option>)}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Zona Muscular</Form.Label>
+                    <Form.Select value={formNuevoEjer.zona_muscular}
+                      onChange={e => setFormNuevoEjer({ ...formNuevoEjer, zona_muscular: e.target.value })}>
+                      <option value="">— Selecciona —</option>
+                      {[
+                        'Tren superior','Tren inferior','Core','Cuerpo completo'
+                      ].map(z => <option key={z} value={z}>{z}</option>)}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Implemento</Form.Label>
+                    <Form.Select value={formNuevoEjer.implemento}
+                      onChange={e => setFormNuevoEjer({ ...formNuevoEjer, implemento: e.target.value })}>
+                      <option value="">— Selecciona —</option>
+                      {[
+                        'Peso corporal','Mancuerna','Mancuernas','Barra','Kettlebell',
+                        'Kettlebells','Polea','Máquina','Banda elástica','Bandas elásticas',
+                        'Balón medicinal','Balón de estabilidad','Banco',
+                        'Barra de dominadas','Suspensión','Sin implemento'
+                      ].map(i => <option key={i} value={i}>{i}</option>)}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>URL Imagen <small className="text-muted">opcional</small></Form.Label>
+                    <Form.Control type="text" placeholder="https://..."
+                      className={claseInput} value={formNuevoEjer.imagen_ejercicio}
+                      onChange={e => setFormNuevoEjer({ ...formNuevoEjer, imagen_ejercicio: e.target.value })} />
+                  </Form.Group>
+                </Col>
+                <Col md={12}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>URL Video <small className="text-muted">opcional</small></Form.Label>
+                    <Form.Control type="text" placeholder="https://youtube.com/..."
+                      className={claseInput} value={formNuevoEjer.video_ejercicio}
+                      onChange={e => setFormNuevoEjer({ ...formNuevoEjer, video_ejercicio: e.target.value })} />
+                  </Form.Group>
+                </Col>
+                <Col md={12}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Descripción</Form.Label>
+                    <Form.Control as="textarea" rows={3} placeholder="Descripción del ejercicio..."
+                      className={claseInput} value={formNuevoEjer.descripcion}
+                      onChange={e => setFormNuevoEjer({ ...formNuevoEjer, descripcion: e.target.value })} />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Check type="switch" label="Activo en catálogo" className="mb-3"
+                    checked={formNuevoEjer.activo_catalogo}
+                    onChange={e => setFormNuevoEjer({ ...formNuevoEjer, activo_catalogo: e.target.checked })} />
+                </Col>
+              </Row>
+              <div className="d-flex justify-content-end gap-2">
+                <Button variant="secondary" onClick={() => setModalNuevoEjer(false)}>Cancelar</Button>
+                <Button variant="primary" type="submit">
+                  {editandoEjercicio ? 'Actualizar Ejercicio' : 'Crear Ejercicio'}
+                </Button>
+              </div>
+            </Form>
+          </Modal.Body>
         </div>
-      </Form>
-    </Modal.Body>
-  </div>
-</Modal>
+      </Modal>
 
-<Modal show={modalVerEjer} onHide={() => setModalVerEjer(false)} centered>
-  <div className={claseModal}>
-    <Modal.Header closeButton className={modoOscuro ? 'border-secondary' : ''}>
-      <Modal.Title>Detalle del Ejercicio</Modal.Title>
-    </Modal.Header>
-    <Modal.Body>
-      {ejercicioSeleccionado ? (
-        <div className="d-flex flex-column gap-3">
-          <div>
-            <h6 className="fw-bold mb-1">{obtenerNombreEjercicio(ejercicioSeleccionado)}</h6>
-            <p className="mb-0 text-muted">{ejercicioSeleccionado.descripcion ?? 'Sin descripción'}</p>
-          </div>
-          <div><strong>Músculo objetivo:</strong> {ejercicioSeleccionado.musculo_objetivo ?? ejercicioSeleccionado.musculoObjetivo ?? ejercicioSeleccionado.musculo ?? '—'}</div>
-          <div><strong>Zona muscular:</strong> {ejercicioSeleccionado.zona_muscular ?? ejercicioSeleccionado.zonaMuscular ?? ejercicioSeleccionado.zona ?? '—'}</div>
-          <div><strong>Implemento:</strong> {ejercicioSeleccionado.implemento ?? '—'}</div>
-          <div><strong>Nivel:</strong> {ejercicioSeleccionado.nivel_dificultad ?? ejercicioSeleccionado.nivelDificultad ?? ejercicioSeleccionado.nivel ?? '—'}</div>
-          <div><strong>Activo en catálogo:</strong> {(ejercicioSeleccionado.activo_catalogo ?? ejercicioSeleccionado.activoCatalogo) ? 'Sí' : 'No'}</div>
-          {ejercicioSeleccionado.imagen_ejercicio && (
-            <div>
-              <strong>Imagen:</strong>
-              <div className="mt-2"><img src={ejercicioSeleccionado.imagen_ejercicio} alt={obtenerNombreEjercicio(ejercicioSeleccionado)} className="img-fluid rounded" /></div>
-            </div>
-          )}
-          {ejercicioSeleccionado.video_ejercicio && (
-            <div><strong>Video:</strong> <a href={ejercicioSeleccionado.video_ejercicio} target="_blank" rel="noreferrer">Ver video</a></div>
-          )}
+      {/* ══════════════════════════════════════════════════════════════════
+          MODAL: Ver Detalle del Ejercicio
+      ══════════════════════════════════════════════════════════════════ */}
+      <Modal show={modalVerEjer} onHide={() => setModalVerEjer(false)} centered>
+        <div className={claseModal}>
+          <Modal.Header closeButton className={modoOscuro ? 'border-secondary' : ''}>
+            <Modal.Title>Detalle del Ejercicio</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {ejercicioSeleccionado ? (
+              <div className="d-flex flex-column gap-3">
+                <div>
+                  <h6 className="fw-bold mb-1">{obtenerNombreEjercicio(ejercicioSeleccionado)}</h6>
+                  <p className="mb-0 text-muted">{ejercicioSeleccionado.descripcion ?? 'Sin descripción'}</p>
+                </div>
+                <div><strong>Músculo objetivo:</strong> {ejercicioSeleccionado.musculo_objetivo ?? ejercicioSeleccionado.musculoObjetivo ?? ejercicioSeleccionado.musculo ?? '—'}</div>
+                <div><strong>Zona muscular:</strong> {ejercicioSeleccionado.zona_muscular ?? ejercicioSeleccionado.zonaMuscular ?? ejercicioSeleccionado.zona ?? '—'}</div>
+                <div><strong>Implemento:</strong> {ejercicioSeleccionado.implemento ?? '—'}</div>
+                <div><strong>Nivel:</strong> {ejercicioSeleccionado.nivel_dificultad ?? ejercicioSeleccionado.nivelDificultad ?? ejercicioSeleccionado.nivel ?? '—'}</div>
+                <div><strong>Activo en catálogo:</strong> {(ejercicioSeleccionado.activo_catalogo ?? ejercicioSeleccionado.activoCatalogo) ? 'Sí' : 'No'}</div>
+                {ejercicioSeleccionado.imagen_ejercicio && (
+                  <div>
+                    <strong>Imagen:</strong>
+                    <div className="mt-2"><img src={ejercicioSeleccionado.imagen_ejercicio} alt={obtenerNombreEjercicio(ejercicioSeleccionado)} className="img-fluid rounded" /></div>
+                  </div>
+                )}
+                {ejercicioSeleccionado.video_ejercicio && (
+                  <div><strong>Video:</strong> <a href={ejercicioSeleccionado.video_ejercicio} target="_blank" rel="noreferrer">Ver video</a></div>
+                )}
+              </div>
+            ) : (
+              <p>No hay ejercicio seleccionado.</p>
+            )}
+          </Modal.Body>
+          <Modal.Footer className={modoOscuro ? 'border-secondary' : ''}>
+            <Button variant="secondary" onClick={() => setModalVerEjer(false)}>Cerrar</Button>
+          </Modal.Footer>
         </div>
-      ) : (
-        <p>No hay ejercicio seleccionado.</p>
-      )}
-    </Modal.Body>
-    <Modal.Footer className={modoOscuro ? 'border-secondary' : ''}>
-      <Button variant="secondary" onClick={() => setModalVerEjer(false)}>Cerrar</Button>
-    </Modal.Footer>
-  </div>
-</Modal>
+      </Modal>
 
     </div>
   );
