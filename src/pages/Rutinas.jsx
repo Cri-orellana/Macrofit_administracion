@@ -208,70 +208,68 @@ const Rutinas = ({ modoOscuro }) => {
     setModalNuevoEjer(true);
   };
 
-  const abrirModalEditarEjercicio = (ejercicio) => {
-    setEditandoEjercicio(ejercicio);
-    setFormNuevoEjer({
-      nombre_ejercicio: ejercicio.nombre_ejercicio ?? ejercicio.nombre ?? '',
-      descripcion: ejercicio.descripcion ?? '',
-      musculo_objetivo: ejercicio.musculo_objetivo ?? ejercicio.musculoObjetivo ?? ejercicio.musculo ?? '',
-      zona_muscular: ejercicio.zona_muscular ?? ejercicio.zonaMuscular ?? ejercicio.zona ?? '',
-      implemento: ejercicio.implemento ?? '',
-      nivel_dificultad: ejercicio.nivel_dificultad ?? ejercicio.nivelDificultad ?? ejercicio.nivel ?? 'Principiante',
-      imagen_ejercicio: ejercicio.imagen_ejercicio ?? ejercicio.imagenEjercicio ?? '',
-      video_ejercicio: ejercicio.video_ejercicio ?? ejercicio.videoEjercicio ?? '',
-      activo_catalogo: ejercicio.activo_catalogo ?? ejercicio.activoCatalogo ?? true,
-      original: ejercicio.original ?? true
-    });
-    setModalNuevoEjer(true);
-  };
+const abrirModalEditarEjercicio = (ejercicio) => {
+  setEditandoEjercicio(ejercicio);
+  setFormNuevoEjer({
+    nombre_ejercicio: ejercicio.nombreEjercicio  ?? '',
+    descripcion:      ejercicio.descripcion      ?? '',
+    musculo_objetivo: ejercicio.musculoObjetivo  ?? '',
+    zona_muscular:    ejercicio.zonaMuscular      ?? '',
+    implemento:       ejercicio.implemento        ?? '',
+    nivel_dificultad: ejercicio.nivelDificultad   ?? 'Principiante',
+    imagen_ejercicio: ejercicio.imagenEjercicio   ?? '',
+    video_ejercicio:  ejercicio.videoEjercicio    ?? '',
+    activo_catalogo:  ejercicio.activoCatalogo    ?? true,
+    original:         ejercicio.original          ?? true,
+  });
+  setModalNuevoEjer(true);
+};
 
   const abrirModalVerEjercicio = (ejercicio) => {
     setEjercicioSeleccionado(ejercicio);
     setModalVerEjer(true);
   };
 
-  const guardarEjercicio = async (e) => {
-    e.preventDefault();
-    try {
-      if (editandoEjercicio) {
-        const id = editandoEjercicio.id_ejercicio ?? editandoEjercicio.idEjercicio ?? editandoEjercicio.id;
-        await api.put(`/ejercicios/${id}`, formNuevoEjer);
-        await cargarEjercicios();
-      } else {
-        await api.post('/ejercicios', formNuevoEjer);
-        await cargarEjercicios();
-      }
-      setEditandoEjercicio(null);
-      setModalNuevoEjer(false);
-      setFormNuevoEjer({
-        nombre_ejercicio: '', descripcion: '', musculo_objetivo: '', zona_muscular: '',
-        implemento: '', nivel_dificultad: 'Principiante', imagen_ejercicio: '',
-        video_ejercicio: '', activo_catalogo: true, original: true
-      });
-    } catch {
-      setError('No se pudo guardar el ejercicio.');
-    }
-  };
+const guardarEjercicio = async (e) => {
+  e.preventDefault();
+  try {
+    // ✅ Payload con camelCase para que coincida con Ejercicio.java
+    const payload = {
+      nombreEjercicio:  formNuevoEjer.nombre_ejercicio,
+      descripcion:      formNuevoEjer.descripcion,
+      musculoObjetivo:  formNuevoEjer.musculo_objetivo,
+      zonaMuscular:     formNuevoEjer.zona_muscular,
+      implemento:       formNuevoEjer.implemento,
+      nivelDificultad:  formNuevoEjer.nivel_dificultad,
+      imagenEjercicio:  formNuevoEjer.imagen_ejercicio,
+      videoEjercicio:   formNuevoEjer.video_ejercicio,
+      activoCatalogo:   formNuevoEjer.activo_catalogo,
+      // original: formNuevoEjer.original, // comentado para uso futuro
+    };
 
-  const eliminarEjercicio = async (id) => {
-    if (!window.confirm('¿Eliminar este ejercicio?')) return;
-    try {
-      await api.delete(`/ejercicios/${id}`);
-      await cargarEjercicios();
-    } catch {
-      setError('No se pudo eliminar el ejercicio.');
+    if (editandoEjercicio) {
+      const id = editandoEjercicio.idEjercicio ?? editandoEjercicio.id_ejercicio ?? editandoEjercicio.id;
+      await api.put(`/ejercicios/${id}`, payload);
+    } else {
+      await api.post('/ejercicios', payload);
     }
-  };
+
+    await cargarEjercicios();
+    setEditandoEjercicio(null);
+    setModalNuevoEjer(false);
+    setFormNuevoEjer({
+      nombre_ejercicio: '', descripcion: '', musculo_objetivo: '', zona_muscular: '',
+      implemento: '', nivel_dificultad: 'Principiante', imagen_ejercicio: '',
+      video_ejercicio: '', activo_catalogo: true, original: true
+    });
+  } catch {
+    setError('No se pudo guardar el ejercicio.');
+  }
+};
 
   // ── Lookup nombre ejercicio ─────────────────────────────────────────────
-  const obtenerNombreEjercicio = (e) => {
-    return e?.nombre_ejercicio
-      ?? e?.nombreEjercicio
-      ?? e?.nombre
-      ?? e?.titulo
-      ?? e?.descripcion
-      ?? '';
-  };
+  const obtenerNombreEjercicio = (e) => e?.nombreEjercicio ?? '';
+
 
   const nombreEjercicio = (idEjercicio) => {
     const e = ejercicios.find(e => e.id_ejercicio === idEjercicio || e.idEjercicio === idEjercicio);
@@ -286,12 +284,12 @@ const Rutinas = ({ modoOscuro }) => {
 
   const ejerciciosFiltradosLista = ejercicios.filter((e) => {
     const texto = [
-      obtenerNombreEjercicio(e),
-      e.musculo_objetivo ?? e.musculoObjetivo ?? e.musculo ?? '',
-      e.zona_muscular ?? e.zonaMuscular ?? e.zona ?? '',
-      e.nivel_dificultad ?? e.nivelDificultad ?? e.nivel ?? '',
-      e.implemento ?? '',
-      (e.activo_catalogo ?? e.activoCatalogo) ? 'activo' : 'inactivo'
+      e.nombreEjercicio  ?? '',
+      e.musculoObjetivo  ?? '',
+      e.zonaMuscular     ?? '',
+      e.nivelDificultad  ?? '',
+      e.implemento       ?? '',
+      e.activoCatalogo ? 'activo' : 'inactivo'
     ].join(' ').toLowerCase();
     return texto.includes(busquedaEjercicios.trim().toLowerCase());
   });
@@ -407,12 +405,14 @@ const Rutinas = ({ modoOscuro }) => {
                     </thead>
                     <tbody>
                       {ejerciciosFiltradosLista.length > 0 ? ejerciciosFiltradosLista.map((e) => {
-                        const nombre = obtenerNombreEjercicio(e);
-                        const musculo = e.musculo_objetivo ?? e.musculoObjetivo ?? e.musculo ?? '—';
-                        const zona = e.zona_muscular ?? e.zonaMuscular ?? e.zona ?? '—';
-                        const nivel = e.nivel_dificultad ?? e.nivelDificultad ?? e.nivel ?? '—';
-                        const activo = e.activo_catalogo ?? e.activoCatalogo;
-                        const idEjercicio = e.id_ejercicio ?? e.idEjercicio ?? e.id;
+                        // ✅ Reemplaza estas líneas:
+                        const nombre      = e.nombreEjercicio  ?? '—';
+                        const musculo     = e.musculoObjetivo  ?? '—';
+                        const zona        = e.zonaMuscular     ?? '—';
+                        const nivel       = e.nivelDificultad  ?? '—';
+                        const activo      = e.activoCatalogo;
+                        const idEjercicio = e.idEjercicio;
+
                         return (
                           <tr key={idEjercicio ?? nombre}>
                             <td className="fw-bold">{nombre}</td>
@@ -426,27 +426,16 @@ const Rutinas = ({ modoOscuro }) => {
                               </Badge>
                             </td>
                             <td>
-                              <Button
-                                variant="outline-primary"
-                                size="sm"
-                                className="me-1"
-                                onClick={() => abrirModalVerEjercicio(e)}
-                              >
+                              <Button variant="outline-primary" size="sm" className="me-1"
+                                onClick={() => abrirModalVerEjercicio(e)}>
                                 Ver
                               </Button>
-                              <Button
-                                variant="outline-warning"
-                                size="sm"
-                                className="me-1 text-dark"
-                                onClick={() => abrirModalEditarEjercicio(e)}
-                              >
+                              <Button variant="outline-warning" size="sm" className="me-1 text-dark"
+                                onClick={() => abrirModalEditarEjercicio(e)}>
                                 Editar
                               </Button>
-                              <Button
-                                variant="outline-danger"
-                                size="sm"
-                                onClick={() => eliminarEjercicio(idEjercicio)}
-                              >
+                              <Button variant="outline-danger" size="sm"
+                                onClick={() => eliminarEjercicio(idEjercicio)}>
                                 Borrar
                               </Button>
                             </td>
