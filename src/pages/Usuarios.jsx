@@ -4,28 +4,6 @@ import MenuNavegacion from '../components/MenuNavegacion';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
-const [rutinaActiva, setRutinaActiva] = useState(null);
-const [cargandoRutina, setCargandoRutina] = useState(true);
-
-useEffect(() => {
-  const cargarRutinaDelUsuario = async () => {
-    try {
-      const resAsignacion = await api.get(`/rutina-usuario/usuario/${id_usuario}/activa`);
-      
-      if (resAsignacion.data && resAsignacion.data.idRutina) {
-        const resRutina = await api.get(`/rutinas/${resAsignacion.data.idRutina}`);
-        setRutinaActiva(resRutina.data);
-      }
-    } catch (error) {
-      setRutinaActiva(null);
-    } finally {
-      setCargandoRutina(false);
-    }
-  };
-
-  cargarRutinaDelUsuario();
-}, [id_usuario]);
-
 const formVacio = {
   nom_usuario: '', correo: '', contrasena: '', rol: 'USER',
   edad: '', sexo: '', peso: '', altura: ''
@@ -115,27 +93,6 @@ const Usuarios = ({ modoOscuro }) => {
         </div>
 
         {error && <Alert variant="danger" dismissible onClose={() => setError('')}>{error}</Alert>}
-
-        {/* TARJETA DE RUTINA ACTIVA */}
-        <Card className="mb-4 shadow-sm">
-          <Card.Header className="bg-primary text-white fw-bold">
-            Rutina Asignada
-          </Card.Header>
-          <Card.Body>
-            {cargandoRutina ? (
-              <div className="text-center py-2"><Spinner animation="border" size="sm" /></div>
-            ) : rutinaActiva ? (
-              <div>
-                <h5 className="fw-bold text-success mb-1">🏋️‍♂️ {rutinaActiva.nombreRutina}</h5>
-                <p className="text-muted mb-0">{rutinaActiva.descripcion}</p>
-              </div>
-            ) : (
-              <Alert variant="warning" className="m-0 text-center fw-bold">
-                Este usuario no tiene ninguna rutina activa en este momento.
-              </Alert>
-            )}
-          </Card.Body>
-        </Card>
 
         <Card className={`mb-4 ${claseTarjeta}`}>
           <Card.Body>
