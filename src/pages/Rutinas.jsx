@@ -103,20 +103,23 @@ const Rutinas = ({ modoOscuro }) => {
     }
   };
 
-  const confirmarAsignacion = async (usuario) => {
+const confirmarAsignacion = async (usuario) => {
     if (!window.confirm(`¿Asignar "${rutinaAAsignar.nombreRutina}" a ${usuario.nom_usuario}?`)) return;
+    
     try {
-      // 1. Verificar si el usuario ya tiene una rutina activa y desactivarla
-      try {
-        const resActiva = await api.get(`/rutina-usuario/usuario/${usuario.id_usuario}/activa`);
-        if (resActiva.data && resActiva.data.idRutinaUsuario) {
-          await api.patch(`/rutina-usuario/${resActiva.data.idRutinaUsuario}/desactivar`);
-        }
-      } catch (err) {
-        // Si da 404 es porque no tenía rutina activa. Seguimos sin problema.
+      const resHistorial = await api.get(`/rutina-usuario/usuario/${usuario.id_usuario}`);
+      
+      const rutinasActivas = resHistorial.data.filter(r => r.activo === true);
+
+      for (let rutina of rutinasActivas) {
+        const rutinaDesactivada = { 
+          ...rutina, 
+          activo: false, 
+          fechaFin: new Date().toISOString().split('T')[0] 
+        };
+        await api.put(`/rutina-usuario/${rutina.idRutinaUsuario}`, rutinaDesactivada);
       }
 
-      // 2. Asignar la nueva rutina
       const payload = {
         idRutina: rutinaAAsignar.idRutina,
         idUsuario: usuario.id_usuario,
@@ -124,10 +127,13 @@ const Rutinas = ({ modoOscuro }) => {
         activo: true
       };
       await api.post('/rutina-usuario', payload);
+      
       alert(`✅ Rutina asignada a ${usuario.nom_usuario} con éxito.`);
       setModalAsignar(false);
+      
     } catch (e) {
-      setError('Ocurrió un error al intentar asignar la rutina.');
+      console.error("Error al re-asignar rutina:", e);
+      setError('Ocurrió un error al cambiar la rutina. Revisa la consola del navegador (F12).');
     }
   };
 
