@@ -3,8 +3,8 @@ import { Container, Row, Col, Card, Spinner, Alert, Modal, Button, ProgressBar }
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import MenuNavegacion from '../components/MenuNavegacion';
 import api from '../services/api';
-// IMPORTAMOS LOS USUARIOS DE PRUEBA (Ajusta la ruta según dónde guardaste el archivo)
 import usuariosPrueba from '../utils/usuariosPrueba'; 
+import { ejerciciosPrueba, rutinasPrueba } from '../utils/datosPrueba';
 
 const PanelPrincipal = ({ modoOscuro }) => {
   const [cargando, setCargando] = useState(true);
@@ -98,21 +98,20 @@ const PanelPrincipal = ({ modoOscuro }) => {
 
   useEffect(() => { cargarDatosDashboard(); }, []);
 
-  // ─── FUNCIONES DE DATOS DE PRUEBA ────────────────────────────────────────
+  // ─── FUNCIONES DE DATOS DE PRUEBA (USUARIOS) ─────────────────────────────
 
   const inyectarUsuariosPrueba = async () => {
     if (!window.confirm("¿Seguro que deseas inyectar 50 usuarios de prueba?")) return;
     
-    setProgresoOp({ activa: true, porcentaje: 0, texto: 'Iniciando inyección de datos...' });
+    setProgresoOp({ activa: true, porcentaje: 0, texto: 'Iniciando inyección de usuarios...' });
     let completados = 0;
     const total = usuariosPrueba.length;
 
     for (const usuario of usuariosPrueba) {
       try {
-        // Enviar uno por uno para asegurar que se procesen correctamente
         await api.post('/usuarios/registro', usuario);
       } catch (err) {
-        // Ignoramos si el correo ya existe para que el bucle no se detenga
+        // Ignorar si existe
       }
       completados++;
       setProgresoOp({ 
@@ -124,7 +123,7 @@ const PanelPrincipal = ({ modoOscuro }) => {
 
     setTimeout(() => {
       setProgresoOp({ activa: false, porcentaje: 0, texto: '' });
-      cargarDatosDashboard(); // Recargamos el panel automáticamente
+      cargarDatosDashboard(); 
     }, 1000);
   };
 
@@ -134,9 +133,7 @@ const PanelPrincipal = ({ modoOscuro }) => {
     setProgresoOp({ activa: true, porcentaje: 0, texto: 'Buscando usuarios de prueba...' });
     
     try {
-      // 1. Obtener todos los usuarios
       const res = await api.get('/usuarios');
-      // 2. Filtrar solo los que tienen el correo del dominio de prueba
       const usuariosTest = res.data.filter(u => u.correo && u.correo.endsWith('@macrofit.test'));
 
       if (usuariosTest.length === 0) {
@@ -151,7 +148,7 @@ const PanelPrincipal = ({ modoOscuro }) => {
       for (const u of usuariosTest) {
         try {
           await api.delete(`/usuarios/${u.id_usuario}`);
-        } catch (err) {} // Continuar aunque uno falle
+        } catch (err) {} 
         
         completados++;
         setProgresoOp({ 
@@ -163,7 +160,7 @@ const PanelPrincipal = ({ modoOscuro }) => {
 
       setTimeout(() => {
         setProgresoOp({ activa: false, porcentaje: 0, texto: '' });
-        cargarDatosDashboard(); // Recargar el panel automáticamente
+        cargarDatosDashboard(); 
       }, 1000);
 
     } catch (e) {
@@ -171,6 +168,112 @@ const PanelPrincipal = ({ modoOscuro }) => {
       alert("Hubo un error al buscar los usuarios.");
     }
   };
+
+  // ─── NUEVO: FUNCIONES DE DATOS DE PRUEBA (RUTINAS/EJERCICIOS) ────────────
+
+  const cargarTodoDePrueba = async () => {
+      if (!window.confirm("¿Inyectar ejercicios y rutinas de prueba (Prefijo TEST-)?")) return;
+      
+      setProgresoOp({ activa: true, porcentaje: 0, texto: 'Iniciando inyección de catálogo...' });
+      
+      try {
+          // 1. Crear Ejercicios
+          let completados = 0;
+          const totalEjercicios = ejerciciosPrueba.length;
+          
+          for (const ejercicio of ejerciciosPrueba) {
+              await api.post('/ejercicios', ejercicio);
+              completados++;
+              setProgresoOp({ 
+                  activa: true, 
+                  porcentaje: Math.round((completados / (totalEjercicios + rutinasPrueba.length)) * 100), 
+                  texto: `Creando ejercicio ${completados} de ${totalEjercicios}...` 
+              });
+          }
+
+          // 2. Crear Rutinas
+          for (let i = 0; i < rutinasPrueba.length; i++) {
+              await api.post('/rutinas', rutinasPrueba[i]);
+              completados++;
+              setProgresoOp({ 
+                  activa: true, 
+                  porcentaje: Math.round((completados / (totalEjercicios + rutinasPrueba.length)) * 100), 
+                  texto: `Creando rutina ${i + 1} de ${rutinasPrueba.length}...` 
+              });
+          }
+
+          setTimeout(() => {
+              setProgresoOp({ activa: false, porcentaje: 0, texto: '' });
+              alert("✅ Catálogo de prueba cargado correctamente.");
+              cargarDatosDashboard();
+          }, 1000);
+
+      } catch (err) {
+          console.error(err);
+          setProgresoOp({ activa: false, porcentaje: 0, texto: '' });
+          alert("Error al cargar los datos de prueba del catálogo.");
+      }
+  };
+
+  const limpiarDatosDePruebaCatalogo = async () => {
+      if (!window.confirm("¿ELIMINAR todos los ejercicios y rutinas de prueba (que comienzan con 'TEST-')?")) return;
+      
+      setProgresoOp({ activa: true, porcentaje: 0, texto: 'Buscando datos de prueba en el catálogo...' });
+
+      try {
+          // Obtener todo
+          const [resRutinas, resEjercicios] = await Promise.all([
+              api.get('/rutinas'),
+              api.get('/ejercicios/activos') // Asumiendo que trae todos o ajusta si hay un endpoint general
+          ]);
+
+          const rutinasTest = resRutinas.data.filter(r => r.nombreRutina && r.nombreRutina.startsWith('TEST-'));
+          const ejerciciosTest = resEjercicios.data.filter(e => e.nombreEjercicio && e.nombreEjercicio.startsWith('TEST-'));
+
+          if (rutinasTest.length === 0 && ejerciciosTest.length === 0) {
+              alert("No se encontraron datos de prueba (TEST-) para eliminar.");
+              setProgresoOp({ activa: false, porcentaje: 0, texto: '' });
+              return;
+          }
+
+          let completados = 0;
+          const total = rutinasTest.length + ejerciciosTest.length;
+
+          // Eliminar Rutinas (es importante eliminar estas primero si hay dependencias, aunque la BD debería manejarlas)
+          for (const r of rutinasTest) {
+              try { await api.delete(`/rutinas/${r.idRutina}`); } catch (e) {}
+              completados++;
+              setProgresoOp({ 
+                  activa: true, 
+                  porcentaje: Math.round((completados / total) * 100), 
+                  texto: `Eliminando rutina de prueba...` 
+              });
+          }
+
+          // Eliminar Ejercicios
+          for (const e of ejerciciosTest) {
+              const id = e.id_ejercicio ?? e.idEjercicio; // Dependiendo de cómo lo devuelva tu backend
+              try { await api.delete(`/ejercicios/${id}`); } catch (err) {}
+              completados++;
+              setProgresoOp({ 
+                  activa: true, 
+                  porcentaje: Math.round((completados / total) * 100), 
+                  texto: `Eliminando ejercicio de prueba...` 
+              });
+          }
+
+          setTimeout(() => {
+              setProgresoOp({ activa: false, porcentaje: 0, texto: '' });
+              cargarDatosDashboard();
+          }, 1000);
+
+      } catch (e) {
+          setProgresoOp({ activa: false, porcentaje: 0, texto: '' });
+          alert("Error al limpiar el catálogo de prueba.");
+      }
+  };
+
+  // ─── UI Y RENDERIZADO ────────────────────────────────────────────────────
 
   const abrirGrafico = (tipo, titulo) => setModal({ show: true, tipo, titulo });
 
@@ -196,18 +299,30 @@ const PanelPrincipal = ({ modoOscuro }) => {
       <MenuNavegacion modoOscuro={modoOscuro} />
 
       <Container className="mt-4 pb-5">
-        <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-          <h2 className="fw-bold m-0">Panel Principal - Dashboard</h2>
+        <div className="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
+          <h2 className="fw-bold m-0 mt-2">Panel Principal - Dashboard</h2>
           
-          {/* BOTONES DE DESARROLLO (SEEDING) */}
-          <div className="d-flex gap-2 p-2 rounded" style={{ border: `1px dashed ${modoOscuro ? '#555' : '#ccc'}` }}>
-            <span className="align-self-center me-2 text-muted fw-bold" style={{ fontSize: '0.8rem' }}>DEV TOOLS:</span>
-            <Button variant="outline-success" size="sm" className="fw-bold" onClick={inyectarUsuariosPrueba} disabled={progresoOp.activa}>
-              + Inyectar 50 Usuarios
-            </Button>
-            <Button variant="outline-danger" size="sm" className="fw-bold" onClick={eliminarUsuariosPrueba} disabled={progresoOp.activa}>
-              - Limpiar Pruebas
-            </Button>
+          {/* BOTONES DE DESARROLLO (SEEDING) ACTUALIZADOS */}
+          <div className="d-flex flex-column gap-2 p-3 rounded shadow-sm" style={{ backgroundColor: modoOscuro ? '#2a2a2a' : '#f8f9fa', border: `1px solid ${modoOscuro ? '#444' : '#dee2e6'}` }}>
+            <span className={`fw-bold mb-1 ${modoOscuro ? 'text-light' : 'text-secondary'}`} style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>🛠️ HERRAMIENTAS DE PRUEBA (DEV TOOLS)</span>
+            
+            <div className="d-flex gap-2">
+              <Button variant="outline-success" size="sm" className="fw-bold" onClick={inyectarUsuariosPrueba} disabled={progresoOp.activa}>
+                + Usuarios (50)
+              </Button>
+              <Button variant="outline-info" size="sm" className="fw-bold" onClick={cargarTodoDePrueba} disabled={progresoOp.activa}>
+                + Catálogo (Rutinas/Ejercicios)
+              </Button>
+            </div>
+            
+            <div className="d-flex gap-2">
+              <Button variant="outline-danger" size="sm" className="fw-bold w-50" onClick={eliminarUsuariosPrueba} disabled={progresoOp.activa}>
+                - Limpiar Usuarios
+              </Button>
+              <Button variant="outline-danger" size="sm" className="fw-bold w-50" onClick={limpiarDatosDePruebaCatalogo} disabled={progresoOp.activa}>
+                - Limpiar Catálogo
+              </Button>
+            </div>
           </div>
         </div>
 
