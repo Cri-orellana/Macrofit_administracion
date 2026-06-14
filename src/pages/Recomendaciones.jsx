@@ -18,12 +18,10 @@ const Recomendaciones = ({ modoOscuro }) => {
   const [cargando,  setCargando]  = useState(true);
   const [error,     setError]     = useState('');
 
-  // Modal Ver Receta
   const [modalReceta,   setModalReceta]   = useState(false);
   const [recetaActiva,  setRecetaActiva]  = useState(null);
   const [editandoReceta, setEditandoReceta] = useState(false);
 
-  // Modal Nueva Recomendación
   const [modalNueva,   setModalNueva]   = useState(false);
   const [editandoId,   setEditandoId]   = useState(null);
   const [form, setForm] = useState({
@@ -39,18 +37,27 @@ const Recomendaciones = ({ modoOscuro }) => {
   const claseInput   = modoOscuro ? 'bg-secondary text-light border-secondary' : '';
   const claseModal   = modoOscuro ? 'bg-dark text-light' : 'bg-white text-dark';
 
-  // ── Carga inicial ──────────────────────────────────────────────────────────
   useEffect(() => {
     const cargar = async () => {
       try {
+        console.log('[Recomendaciones] Iniciando carga...');
         const [resComidas, resTipos] = await Promise.all([
-          api.get('/nutricion/comidas'),
+          api.get('/nutricion/recetas-cache'),
           api.get('/nutricion/tipos-dieta'),
         ]);
+        console.log('[Recomendaciones] comidas raw:', resComidas);
+        console.log('[Recomendaciones] comidas data:', resComidas.data);
+        console.log('[Recomendaciones] tipos raw:', resTipos);
+        console.log('[Recomendaciones] tipos data:', resTipos.data);
         setComidas(resComidas.data);
         setTipos(resTipos.data);
-      } catch {
-        setError('No se pudo cargar la información.');
+      } catch (err) {
+        console.error('[Recomendaciones] Error al cargar:', err);
+        console.error('[Recomendaciones] err.response:', err?.response);
+        console.error('[Recomendaciones] err.response.data:', err?.response?.data);
+        console.error('[Recomendaciones] err.response.status:', err?.response?.status);
+        console.error('[Recomendaciones] err.message:', err?.message);
+        setError(`Error al cargar: ${err?.response?.status ?? ''} ${err?.message ?? 'desconocido'} — revisa la consola (F12) para más detalles.`);
       } finally {
         setCargando(false);
       }
@@ -58,7 +65,6 @@ const Recomendaciones = ({ modoOscuro }) => {
     cargar();
   }, []);
 
-  // ── Ver Receta ─────────────────────────────────────────────────────────────
   const abrirReceta = (comida) => {
     setRecetaActiva({ ...comida });
     setEditandoReceta(false);
@@ -72,8 +78,8 @@ const Recomendaciones = ({ modoOscuro }) => {
         ...recetaActiva,
         tipo_alimentacion: { id_tipo_alimentacion: recetaActiva.tipo_alimentacion?.id_tipo_alimentacion }
       };
-      const res = await api.put(`/nutricion/comidas/${recetaActiva.id_comida}`, payload);
-      setComidas(comidas.map(c => c.id_comida === recetaActiva.id_comida ? res.data : c));
+      const res = await api.put(`/nutricion/recetas-cache/${recetaActiva.id}`, payload);
+      setComidas(comidas.map(c => c.id === recetaActiva.id ? res.data : c));
       setEditandoReceta(false);
       setModalReceta(false);
     } catch {
@@ -81,7 +87,6 @@ const Recomendaciones = ({ modoOscuro }) => {
     }
   };
 
-  // ── CRUD comidas ───────────────────────────────────────────────────────────
   const resetForm = () => setForm({
     nombre_comida: '', descripcion_comida: '', cantidad_porcion: '100g',
     calorias_porcion: '', proteina_porcion: '', carbohidratos_porcion: '',
@@ -139,14 +144,13 @@ const Recomendaciones = ({ modoOscuro }) => {
   const eliminarComida = async (id) => {
     if (!window.confirm('¿Eliminar esta recomendación?')) return;
     try {
-      await api.delete(`/nutricion/comidas/${id}`);
-      setComidas(comidas.filter(c => c.id_comida !== id));
+      await api.delete(`/nutricion/recetas-cache/${id}`);
+      setComidas(comidas.filter(c => c.id !== id));
     } catch {
       setError('No se pudo eliminar la recomendación.');
     }
   };
 
-  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className={`min-vh-100 ${claseTexto}`} style={{ backgroundColor: fondoPantalla }}>
       <MenuNavegacion modoOscuro={modoOscuro} />
@@ -160,6 +164,33 @@ const Recomendaciones = ({ modoOscuro }) => {
         </div>
 
         {error && <Alert variant="danger" dismissible onClose={() => setError('')}>{error}</Alert>}
+
+        {/* ── Panel de diagnóstico (solo en desarrollo) ── */}
+        {import.meta.env.DEV && (
+          <Alert variant="info" className="mb-3" style={{ fontSize: '0.8rem', fontFamily: 'monospace' }}>
+            <strong>🔍 Debug:</strong> comidas cargadas: <strong>{comidas.length}</strong> |
+            tipos cargados: <strong>{tipos.length}</strong> |
+            endpoints: <code>/nutricion/comidas</code>, <code>/nutricion/tipos-dieta</code>
+            <br />
+            <Button size="sm" variant="outline-info" className="mt-1" onClick={async () => {
+              try {
+                const res = await api.get('/nutricion/comidas');
+                alert(`Status: ${res.status}\nItems: ${res.data?.length ?? '?'}\nPrimero: ${JSON.stringify(res.data?.[0] ?? {}, null, 2)}`);
+              } catch(e) {
+                alert(`ERROR: ${e?.response?.status} ${e?.message}\n${JSON.stringify(e?.response?.data ?? {})}`);
+              }
+            }}>Probar /nutricion/comidas</Button>
+            {' '}
+            <Button size="sm" variant="outline-info" className="mt-1" onClick={async () => {
+              try {
+                const res = await api.get('/nutricion/tipos-dieta');
+                alert(`Status: ${res.status}\nItems: ${res.data?.length ?? '?'}\nData: ${JSON.stringify(res.data ?? [], null, 2)}`);
+              } catch(e) {
+                alert(`ERROR: ${e?.response?.status} ${e?.message}\n${JSON.stringify(e?.response?.data ?? {})}`);
+              }
+            }}>Probar /nutricion/tipos-dieta</Button>
+          </Alert>
+        )}
 
         <Card className={claseTarjeta}>
           <Card.Body>
@@ -184,7 +215,7 @@ const Recomendaciones = ({ modoOscuro }) => {
                 </thead>
                 <tbody>
                   {comidas.length > 0 ? comidas.map((c) => (
-                    <tr key={c.id_comida}>
+                    <tr key={c.id}>
                       <td className="fw-bold">{c.nombre_comida}</td>
                       <td>
                         <Badge bg={colorTipo(c.tipo_alimentacion?.nombre_tipo)}>
@@ -199,22 +230,25 @@ const Recomendaciones = ({ modoOscuro }) => {
                       <td style={{ whiteSpace: 'nowrap' }}>
                         <div className="d-flex gap-1">
                           <Button variant="info" size="sm" className="text-white fw-bold"
-                            onClick={() => abrirReceta(c)}>
-                            Ver
-                          </Button>
+                            onClick={() => abrirReceta(c)}>Ver</Button>
                           <Button variant="warning" size="sm" className="fw-bold text-dark"
-                            onClick={() => abrirModalEditar(c)}>
-                            Editar
-                          </Button>
+                            onClick={() => abrirModalEditar(c)}>Editar</Button>
                           <Button variant="danger" size="sm" className="fw-bold"
-                            onClick={() => eliminarComida(c.id_comida)}>
-                            Borrar
-                          </Button>
+                            onClick={() => eliminarComida(c.id)}>Borrar</Button>
                         </div>
                       </td>
                     </tr>
                   )) : (
-                    <tr><td colSpan="8" className="text-center py-4">No hay recomendaciones registradas.</td></tr>
+                    <tr>
+                      <td colSpan="8" className="text-center py-4">
+                        No hay recomendaciones registradas.
+                        {import.meta.env.DEV && (
+                          <div className="mt-2 text-muted" style={{ fontSize: '0.8rem' }}>
+                            Si esperas datos, abre F12 → Consola y revisa los logs <code>[Recomendaciones]</code>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
                   )}
                 </tbody>
               </Table>
@@ -223,9 +257,7 @@ const Recomendaciones = ({ modoOscuro }) => {
         </Card>
       </Container>
 
-      {/* ══════════════════════════════════════════════════════════════════
-          MODAL: Ver Receta
-      ══════════════════════════════════════════════════════════════════ */}
+      {/* ══ MODAL: Ver Receta ══════════════════════════════════════════════════ */}
       <Modal show={modalReceta} onHide={() => setModalReceta(false)} centered size="lg">
         <div className={claseModal}>
           <Modal.Header closeButton className={modoOscuro ? 'border-secondary' : ''}>
@@ -243,12 +275,35 @@ const Recomendaciones = ({ modoOscuro }) => {
                       value={recetaActiva.nombre_comida}
                       onChange={e => setRecetaActiva({ ...recetaActiva, nombre_comida: e.target.value })} />
                   </Form.Group>
+
+                  {/* ── Ingredientes ── */}
                   <Form.Group className="mb-3">
-                    <Form.Label>Descripción / Receta</Form.Label>
-                    <Form.Control as="textarea" rows={5} className={claseInput}
-                      value={recetaActiva.descripcion_comida ?? ''}
-                      onChange={e => setRecetaActiva({ ...recetaActiva, descripcion_comida: e.target.value })} />
+                    <Form.Label>🧂 Ingredientes <small className="text-muted">(uno por línea)</small></Form.Label>
+                    <Form.Control as="textarea" rows={4} className={claseInput}
+                      value={(() => {
+                        try { return JSON.parse(recetaActiva.ingredientes_json || '[]').join('\n'); }
+                        catch { return ''; }
+                      })()}
+                      onChange={e => setRecetaActiva({
+                        ...recetaActiva,
+                        ingredientes_json: JSON.stringify(e.target.value.split('\n').filter(l => l.trim() !== ''))
+                      })} />
                   </Form.Group>
+
+                  {/* ── Preparación ── */}
+                  <Form.Group className="mb-3">
+                    <Form.Label>👨‍🍳 Preparación <small className="text-muted">(un paso por línea)</small></Form.Label>
+                    <Form.Control as="textarea" rows={5} className={claseInput}
+                      value={(() => {
+                        try { return JSON.parse(recetaActiva.preparacion_json || '[]').join('\n'); }
+                        catch { return ''; }
+                      })()}
+                      onChange={e => setRecetaActiva({
+                        ...recetaActiva,
+                        preparacion_json: JSON.stringify(e.target.value.split('\n').filter(l => l.trim() !== ''))
+                      })} />
+                  </Form.Group>
+
                   <div className="row g-3 mb-3">
                     {[
                       ['calorias_porcion', 'Calorías (kcal)'],
@@ -281,18 +336,14 @@ const Recomendaciones = ({ modoOscuro }) => {
                       </Badge>
                     </div>
                     <Button variant="outline-warning" size="sm" className="fw-bold"
-                      onClick={() => setEditandoReceta(true)}>
-                      ✏️ Editar
-                    </Button>
+                      onClick={() => setEditandoReceta(true)}>✏️ Editar</Button>
                   </div>
-
-                  {/* Macros */}
                   <div className="row text-center mb-4">
                     {[
-                      { label: 'Calorías', value: `${recetaActiva.calorias_porcion ?? '—'} kcal`, color: 'text-primary' },
-                      { label: 'Proteínas', value: `${recetaActiva.proteina_porcion ?? '—'} g`, color: 'text-info' },
+                      { label: 'Calorías',      value: `${recetaActiva.calorias_porcion ?? '—'} kcal`, color: 'text-primary' },
+                      { label: 'Proteínas',     value: `${recetaActiva.proteina_porcion ?? '—'} g`,    color: 'text-info' },
                       { label: 'Carbohidratos', value: `${recetaActiva.carbohidratos_porcion ?? '—'} g`, color: 'text-warning' },
-                      { label: 'Grasas', value: `${recetaActiva.grasa_porcion ?? '—'} g`, color: 'text-danger' },
+                      { label: 'Grasas',        value: `${recetaActiva.grasa_porcion ?? '—'} g`,       color: 'text-danger' },
                     ].map(({ label, value, color }) => (
                       <div key={label} className="col-3">
                         <div className={`${modoOscuro ? 'bg-secondary' : 'bg-light'} rounded p-2`}>
@@ -303,12 +354,34 @@ const Recomendaciones = ({ modoOscuro }) => {
                     ))}
                   </div>
 
-                  {/* Descripción */}
+                  {/* ── Ingredientes ── */}
+                  <div className={`p-3 rounded mb-3 ${modoOscuro ? 'bg-secondary' : 'bg-light'}`}>
+                    <h6 className="fw-bold mb-2">🧂 Ingredientes</h6>
+                    {(() => {
+                      try {
+                        const lista = JSON.parse(recetaActiva.ingredientes_json || '[]');
+                        return lista.length > 0
+                          ? <ul className="mb-0 ps-3">{lista.map((ing, i) => <li key={i}>{ing}</li>)}</ul>
+                          : <p className="mb-0 text-muted fst-italic">Sin ingredientes registrados.</p>;
+                      } catch {
+                        return <p className="mb-0 text-muted fst-italic">Sin ingredientes registrados.</p>;
+                      }
+                    })()}
+                  </div>
+
+                  {/* ── Preparación ── */}
                   <div className={`p-3 rounded ${modoOscuro ? 'bg-secondary' : 'bg-light'}`}>
-                    <h6 className="fw-bold mb-2">📝 Descripción</h6>
-                    <p className="mb-0" style={{ whiteSpace: 'pre-wrap' }}>
-                      {recetaActiva.descripcion_comida || 'Sin descripción registrada.'}
-                    </p>
+                    <h6 className="fw-bold mb-2">👨‍🍳 Preparación</h6>
+                    {(() => {
+                      try {
+                        const pasos = JSON.parse(recetaActiva.preparacion_json || '[]');
+                        return pasos.length > 0
+                          ? <ol className="mb-0 ps-3">{pasos.map((paso, i) => <li key={i} className="mb-1">{paso}</li>)}</ol>
+                          : <p className="mb-0 text-muted fst-italic">Sin preparación registrada.</p>;
+                      } catch {
+                        return <p className="mb-0 text-muted fst-italic">Sin preparación registrada.</p>;
+                      }
+                    })()}
                   </div>
 
                   <div className="mt-2 text-muted small">
@@ -321,9 +394,7 @@ const Recomendaciones = ({ modoOscuro }) => {
         </div>
       </Modal>
 
-      {/* ══════════════════════════════════════════════════════════════════
-          MODAL: Nueva / Editar Recomendación
-      ══════════════════════════════════════════════════════════════════ */}
+      {/* ══ MODAL: Nueva / Editar Recomendación ═══════════════════════════════ */}
       <Modal show={modalNueva} onHide={() => setModalNueva(false)} centered>
         <div className={claseModal}>
           <Modal.Header closeButton className={modoOscuro ? 'border-secondary' : ''}>
@@ -337,7 +408,6 @@ const Recomendaciones = ({ modoOscuro }) => {
                   value={form.nombre_comida}
                   onChange={e => setForm({ ...form, nombre_comida: e.target.value })} />
               </Form.Group>
-
               <Form.Group className="mb-3">
                 <Form.Label>Tipo de Alimentación</Form.Label>
                 <Form.Select className={claseInput} value={form.id_tipo_alimentacion}
@@ -350,14 +420,12 @@ const Recomendaciones = ({ modoOscuro }) => {
                   ))}
                 </Form.Select>
               </Form.Group>
-
               <Form.Group className="mb-3">
                 <Form.Label>Descripción / Receta</Form.Label>
                 <Form.Control as="textarea" rows={3} className={claseInput}
                   value={form.descripcion_comida}
                   onChange={e => setForm({ ...form, descripcion_comida: e.target.value })} />
               </Form.Group>
-
               <div className="row g-3 mb-3">
                 {[
                   ['calorias_porcion', 'Calorías (kcal)'],
@@ -375,14 +443,12 @@ const Recomendaciones = ({ modoOscuro }) => {
                   </div>
                 ))}
               </div>
-
               <Form.Group className="mb-4">
                 <Form.Label>Cantidad por Porción</Form.Label>
                 <Form.Control type="text" placeholder="Ej: 100g" className={claseInput}
                   value={form.cantidad_porcion}
                   onChange={e => setForm({ ...form, cantidad_porcion: e.target.value })} />
               </Form.Group>
-
               <div className="d-flex justify-content-end gap-2">
                 <Button variant="secondary" onClick={() => setModalNueva(false)}>Cancelar</Button>
                 <Button variant="primary" type="submit">
