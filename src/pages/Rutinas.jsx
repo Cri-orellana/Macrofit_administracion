@@ -324,9 +324,8 @@ const Rutinas = ({ modoOscuro }) => {
   };
 
   return (
-    <div className={`min-vh-100 ${claseTexto}`} style={{ backgroundColor: fondoPantalla }}>
+    <div className={`flup-main-content min-vh-100 ${claseTexto}`} style={{ backgroundColor: fondoPantalla }}>
       <MenuNavegacion modoOscuro={modoOscuro} />
-      <Container className="mt-4 pb-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2 className="fw-bold m-0">Administrar Rutinas</h2>
           <div className="d-flex gap-2">
@@ -354,7 +353,7 @@ const Rutinas = ({ modoOscuro }) => {
                         <td className="fw-bold align-middle">{r.nombreRutina ?? '—'}</td>
                         <td className="text-truncate align-middle" style={{ maxWidth: 250 }}>{r.descripcion ?? '—'}</td>
                         <td className="align-middle"><Badge bg={r.activoCatalogo ? 'success' : 'secondary'}>{r.activoCatalogo ? 'Activa' : 'Inactiva'}</Badge></td>
-                        <td className="align-middle">
+                        <td className="align-middle" style={{ whiteSpace: 'nowrap' }}>
                           <Button variant="success" size="sm" className="me-1 fw-bold" onClick={() => abrirModalAsignar(r)}>Asignar</Button>
                           <Button variant="info"    size="sm" className="me-1 text-white fw-bold" onClick={() => abrirModalEjercicios(r)}>Ver Ejercicios</Button>
                           <Button variant="warning" size="sm" className="me-1 fw-bold text-dark"  onClick={() => abrirModalEditarRutina(r)}>Editar</Button>
@@ -397,7 +396,6 @@ const Rutinas = ({ modoOscuro }) => {
             )}
           </Card.Body>
         </Card>
-      </Container>
 
       {/* ════════ MODAL: Gestión de Ejercicios por Día (Drag & Drop) ════════ */}
       <Modal show={modalEjercicios} onHide={() => setModalEjercicios(false)} fullscreen className="modal-ejercicios-dnd">

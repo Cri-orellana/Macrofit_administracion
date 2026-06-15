@@ -152,10 +152,9 @@ const Recomendaciones = ({ modoOscuro }) => {
   };
 
   return (
-    <div className={`min-vh-100 ${claseTexto}`} style={{ backgroundColor: fondoPantalla }}>
+    <div className={`flup-main-content min-vh-100 ${claseTexto}`} style={{ backgroundColor: fondoPantalla }}>
       <MenuNavegacion modoOscuro={modoOscuro} />
 
-      <Container className="mt-4 pb-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2 className="fw-bold m-0">Administrar Recomendaciones</h2>
           <Button variant="primary" className="fw-bold" onClick={abrirModalNueva}>
@@ -255,7 +254,6 @@ const Recomendaciones = ({ modoOscuro }) => {
             )}
           </Card.Body>
         </Card>
-      </Container>
 
       {/* ══ MODAL: Ver Receta ══════════════════════════════════════════════════ */}
       <Modal show={modalReceta} onHide={() => setModalReceta(false)} centered size="lg">

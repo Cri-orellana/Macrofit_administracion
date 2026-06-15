@@ -81,10 +81,9 @@ const Usuarios = ({ modoOscuro }) => {
   const claseModal   = modoOscuro ? 'bg-dark text-light' : 'bg-white text-dark';
 
   return (
-    <div className={`min-vh-100 ${claseTexto}`} style={{ backgroundColor: fondoPantalla }}>
+    <div className={`flup-main-content min-vh-100 ${claseTexto}`} style={{ backgroundColor: fondoPantalla }}>
       <MenuNavegacion modoOscuro={modoOscuro} />
 
-      <Container className="mt-4 pb-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2 className="fw-bold m-0">Administración de Usuarios</h2>
           <Button variant="primary" className="fw-bold" onClick={() => { setForm(formVacio); setModal(true); }}>
@@ -141,7 +140,7 @@ const Usuarios = ({ modoOscuro }) => {
                           <span className={`badge ${u.rol === 'ADMIN' || u.rol === 'Admin' ? 'bg-danger' : 'bg-success'}`}>
                             {u.rol}
                           </span>
-                        </td>
+                          </td>
                         <td style={{ whiteSpace: 'nowrap' }}>
                           <div className="d-flex gap-1">
                             <Button variant="info" size="sm" className="text-white fw-bold"
@@ -166,7 +165,6 @@ const Usuarios = ({ modoOscuro }) => {
             )}
           </Card.Body>
         </Card>
-      </Container>
 
       {/* ══════════════════════════════════════════════════════════════════
           MODAL: Crear Usuario
