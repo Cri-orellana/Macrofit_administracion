@@ -36,5 +36,6 @@
       "source": "/api/:path*",
       "destination": "http://165.1.126.244/api/:path*"
     }
+
   ]
 }
