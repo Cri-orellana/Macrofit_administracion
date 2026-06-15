@@ -1,16 +1,32 @@
 {
   "rewrites": [
     {
+      "source": "/api/ejercicios",
+      "destination": "http://165.1.126.244/ejercicios"
+    },
+    {
       "source": "/api/ejercicios/:path*",
       "destination": "http://165.1.126.244/ejercicios/:path*"
+    },
+    {
+      "source": "/api/rutinas",
+      "destination": "http://165.1.126.244/rutinas"
     },
     {
       "source": "/api/rutinas/:path*",
       "destination": "http://165.1.126.244/rutinas/:path*"
     },
     {
+      "source": "/api/rutina-ejercicio",
+      "destination": "http://165.1.126.244/rutina-ejercicio"
+    },
+    {
       "source": "/api/rutina-ejercicio/:path*",
       "destination": "http://165.1.126.244/rutina-ejercicio/:path*"
+    },
+    {
+      "source": "/api/rutina-usuario",
+      "destination": "http://165.1.126.244/rutina-usuario"
     },
     {
       "source": "/api/rutina-usuario/:path*",
