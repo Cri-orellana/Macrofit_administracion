@@ -23,11 +23,11 @@ const manejarIngreso = async (e) => {
         contrasena: contrasenia 
       });
 
-      console.log("🔍 Respuesta cruda del servidor:", respuesta);
+      console.log(" Respuesta cruda del servidor:", respuesta);
 
       const datosUsuario = respuesta.data !== undefined ? respuesta.data : respuesta;
 
-      console.log("🧑‍💻 Datos del usuario detectados:", datosUsuario);
+      console.log(" Datos del usuario detectados:", datosUsuario);
 
       if (!datosUsuario || !datosUsuario.rol) {
           setError("El servidor respondió, pero no envió los datos correctos del usuario.");

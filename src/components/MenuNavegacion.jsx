@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import logoApp from '../assets/logo_app.png';
+import qrCode from '../assets/frame.png';
 import './MenuNavegacion.css';
 
 const MenuNavegacion = ({ modoOscuro }) => {
@@ -30,34 +31,40 @@ const MenuNavegacion = ({ modoOscuro }) => {
             className={`nav-item ${isActive('/panel') ? 'active' : ''}`} 
             onClick={() => navegar('/panel')}
           >
-            📊 Dashboard
+             Dashboard
           </button>
           
           <button 
             className={`nav-item ${isActive('/panel/recomendaciones') ? 'active' : ''}`} 
             onClick={() => navegar('/panel/recomendaciones')}
           >
-            🥗 Recomendaciones
+             Recomendaciones
           </button>
           
           <button 
             className={`nav-item ${isActive('/panel/rutinas') ? 'active' : ''}`} 
             onClick={() => navegar('/panel/rutinas')}
           >
-            🏋️‍♂️ Rutinas y Catálogo
+             Rutinas y Catálogo
           </button>
           
           <button 
             className={`nav-item ${isActive('/panel/usuarios') ? 'active' : ''}`} 
             onClick={() => navegar('/panel/usuarios')}
           >
-            👥 Gestión Usuarios
+             Gestión Usuarios
           </button>
         </nav>
 
         <div className="sidebar-footer">
+          {/* ─── QR CODE ─── */}
+          <div className="sidebar-qr">
+            <img src={qrCode} alt="Código QR" className="qr-image" />
+            <span className="qr-label">Escanea el QR</span>
+          </div>
+
           <button className="nav-item text-danger w-100" onClick={cerrarSesion}>
-            🚪 Cerrar Sesión
+             Cerrar Sesión
           </button>
         </div>
       </aside>

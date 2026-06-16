@@ -195,7 +195,7 @@ const PanelPrincipal = ({ modoOscuro }) => {
           }
           setTimeout(() => {
               setProgresoOp({ activa: false, porcentaje: 0, texto: '' });
-              alert("✅ Catálogo de prueba cargado correctamente.");
+              alert(" Catálogo de prueba cargado correctamente.");
               cargarDatosDashboard();
           }, 1000);
       } catch (err) {
@@ -407,7 +407,7 @@ const PanelPrincipal = ({ modoOscuro }) => {
             <div className="flup-dev-tools">
               <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
                 <span style={{ fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase', color: 'var(--flup-text-muted)' }}>
-                  🛠️ Herramientas de Prueba (Dev Tools)
+                   Herramientas de Prueba (Dev Tools)
                 </span>
                 <div className="d-flex gap-2 flex-wrap">
                   <Button variant={modoOscuro ? "outline-light" : "outline-dark"} size="sm" onClick={inyectarUsuariosPrueba} disabled={progresoOp.activa}>+ 50 Usuarios</Button>

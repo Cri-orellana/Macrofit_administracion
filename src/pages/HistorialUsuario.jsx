@@ -107,7 +107,7 @@ const HistorialUsuario = ({ modoOscuro }) => {
           <Col>
             <Card className={claseTarjeta}>
               <Card.Header className={`fw-bold text-white ${modoOscuro ? 'bg-primary' : 'bg-primary'}`}>
-                🏋️‍♂️ Rutina de Entrenamiento Actual
+                 Rutina de Entrenamiento Actual
               </Card.Header>
               <Card.Body>
                 {cargandoRutina ? (

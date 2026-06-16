@@ -97,7 +97,7 @@ const Usuarios = ({ modoOscuro }) => {
           <Card.Body>
             <Form.Control
               type="text"
-              placeholder="🔍 Buscar usuario por nombre o correo..."
+              placeholder=" Buscar usuario por nombre o correo..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               className={claseInput}

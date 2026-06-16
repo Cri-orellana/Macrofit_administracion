@@ -117,7 +117,7 @@ const Rutinas = ({ modoOscuro }) => {
         activo: true
       };
       await api.post('/rutina-usuario', payload);
-      alert(`✅ Rutina asignada a ${usuario.nom_usuario} con éxito.`);
+      alert(` Rutina asignada a ${usuario.nom_usuario} con éxito.`);
       setModalAsignar(false);
     } catch (e) {
       console.error("Error al re-asignar rutina:", e);
@@ -516,7 +516,7 @@ const Rutinas = ({ modoOscuro }) => {
               {/* ── Barra de búsqueda ── */}
               <InputGroup className="mb-2">
                 <InputGroup.Text className={modoOscuro ? 'bg-secondary border-secondary text-light' : ''}>
-                  🔍
+                  
                 </InputGroup.Text>
                 <Form.Control
                   placeholder="Buscar ejercicio por nombre..."

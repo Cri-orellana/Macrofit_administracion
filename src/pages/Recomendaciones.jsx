@@ -167,7 +167,7 @@ const Recomendaciones = ({ modoOscuro }) => {
         {/* ── Panel de diagnóstico (solo en desarrollo) ── */}
         {import.meta.env.DEV && (
           <Alert variant="info" className="mb-3" style={{ fontSize: '0.8rem', fontFamily: 'monospace' }}>
-            <strong>🔍 Debug:</strong> comidas cargadas: <strong>{comidas.length}</strong> |
+            <strong> Debug:</strong> comidas cargadas: <strong>{comidas.length}</strong> |
             tipos cargados: <strong>{tipos.length}</strong> |
             endpoints: <code>/nutricion/comidas</code>, <code>/nutricion/tipos-dieta</code>
             <br />
@@ -260,7 +260,7 @@ const Recomendaciones = ({ modoOscuro }) => {
         <div className={claseModal}>
           <Modal.Header closeButton className={modoOscuro ? 'border-secondary' : ''}>
             <Modal.Title>
-              {editandoReceta ? '✏️ Editando Receta' : '🍽️ Detalle de Receta'}
+              {editandoReceta ? ' Editando Receta' : ' Detalle de Receta'}
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
@@ -276,7 +276,7 @@ const Recomendaciones = ({ modoOscuro }) => {
 
                   {/* ── Ingredientes ── */}
                   <Form.Group className="mb-3">
-                    <Form.Label>🧂 Ingredientes <small className="text-muted">(uno por línea)</small></Form.Label>
+                    <Form.Label> Ingredientes <small className="text-muted">(uno por línea)</small></Form.Label>
                     <Form.Control as="textarea" rows={4} className={claseInput}
                       value={(() => {
                         try { return JSON.parse(recetaActiva.ingredientes_json || '[]').join('\n'); }
@@ -290,7 +290,7 @@ const Recomendaciones = ({ modoOscuro }) => {
 
                   {/* ── Preparación ── */}
                   <Form.Group className="mb-3">
-                    <Form.Label>👨‍🍳 Preparación <small className="text-muted">(un paso por línea)</small></Form.Label>
+                    <Form.Label> Preparación <small className="text-muted">(un paso por línea)</small></Form.Label>
                     <Form.Control as="textarea" rows={5} className={claseInput}
                       value={(() => {
                         try { return JSON.parse(recetaActiva.preparacion_json || '[]').join('\n'); }
@@ -334,7 +334,7 @@ const Recomendaciones = ({ modoOscuro }) => {
                       </Badge>
                     </div>
                     <Button variant="outline-warning" size="sm" className="fw-bold"
-                      onClick={() => setEditandoReceta(true)}>✏️ Editar</Button>
+                      onClick={() => setEditandoReceta(true)}> Editar</Button>
                   </div>
                   <div className="row text-center mb-4">
                     {[
@@ -354,7 +354,7 @@ const Recomendaciones = ({ modoOscuro }) => {
 
                   {/* ── Ingredientes ── */}
                   <div className={`p-3 rounded mb-3 ${modoOscuro ? 'bg-secondary' : 'bg-light'}`}>
-                    <h6 className="fw-bold mb-2">🧂 Ingredientes</h6>
+                    <h6 className="fw-bold mb-2"> Ingredientes</h6>
                     {(() => {
                       try {
                         const lista = JSON.parse(recetaActiva.ingredientes_json || '[]');
@@ -369,7 +369,7 @@ const Recomendaciones = ({ modoOscuro }) => {
 
                   {/* ── Preparación ── */}
                   <div className={`p-3 rounded ${modoOscuro ? 'bg-secondary' : 'bg-light'}`}>
-                    <h6 className="fw-bold mb-2">👨‍🍳 Preparación</h6>
+                    <h6 className="fw-bold mb-2"> Preparación</h6>
                     {(() => {
                       try {
                         const pasos = JSON.parse(recetaActiva.preparacion_json || '[]');
