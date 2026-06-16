@@ -48,7 +48,7 @@ describe('Pruebas del PanelPrincipal (Dashboard)', () => {
     });
   });
 
-
+//com
   it('4. Debe mostrar la tarjeta de "Rutinas Activas" cuando termina de cargar', async () => {
     render(<PanelPrincipal modoOscuro={false} />);
     
