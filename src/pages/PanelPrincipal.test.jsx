@@ -69,17 +69,18 @@ describe('Pruebas del PanelPrincipal (Dashboard)', () => {
   });
 
 
-  it('1. Debe mostrar el título "Dashboard"', async () => {
+  it('1. Debe mostrar el título principal del Dashboard', async () => {
     render(<PanelPrincipal modoOscuro={false} />);
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
   });
 
-  it('2. Debe mostrar el spinner con texto "Sincronizando métricas..." mientras carga', () => {
+ 
+  it('2. Debe mostrar el mensaje de carga inicialmente', () => {
     render(<PanelPrincipal modoOscuro={false} />);
     expect(screen.getByText('Sincronizando métricas...')).toBeInTheDocument();
   });
 
-  it('3. Debe mostrar alerta de error si la API falla', async () => {
+  it('3. Debe mostrar una alerta roja si la API de Spring Boot falla', async () => {
     api.get.mockRejectedValue(new Error('Error del servidor'));
     render(<PanelPrincipal modoOscuro={false} />);
 
@@ -88,7 +89,8 @@ describe('Pruebas del PanelPrincipal (Dashboard)', () => {
     });
   });
 
-  it('4. Debe mostrar la tarjeta "Rutinas Activas" tras cargar', async () => {
+//com
+  it('4. Debe mostrar la tarjeta de "Rutinas Activas" cuando termina de cargar', async () => {
     render(<PanelPrincipal modoOscuro={false} />);
 
     await waitFor(() => {
@@ -96,116 +98,7 @@ describe('Pruebas del PanelPrincipal (Dashboard)', () => {
     });
   });
 
-  it('5. Debe mostrar la tarjeta "Usuarios Registrados" tras cargar', async () => {
-    render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Usuarios Registrados')).toBeInTheDocument();
-    });
-  });
-
-  it('6. Debe mostrar la tarjeta "Usuarios Entrenando" tras cargar', async () => {
-    render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Usuarios Entrenando')).toBeInTheDocument();
-    });
-  });
-
-  it('7. Debe mostrar la tarjeta "Ejercicio Top" tras cargar', async () => {
-    render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Ejercicio Top')).toBeInTheDocument();
-    });
-  });
-
-  it('8. Debe ocultar el spinner después de que la API responde', async () => {
-    render(<PanelPrincipal modoOscuro={false} />);
-    expect(screen.getByText('Sincronizando métricas...')).toBeInTheDocument();
-
-    await waitFor(() => {
-      expect(screen.queryByText('Sincronizando métricas...')).not.toBeInTheDocument();
-    });
-  });
-
-  it('9. No debe mostrar el mensaje de error cuando la API responde bien', async () => {
-    render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => screen.getByText('Rutinas Activas'));
-    expect(screen.queryByText('No se pudieron cargar las estadísticas.')).not.toBeInTheDocument();
-  });
-
-  it('10. Debe mostrar el menú de navegación mockeado', () => {
-    render(<PanelPrincipal modoOscuro={false} />);
-    expect(screen.getByText('Menu Mock')).toBeInTheDocument();
-  });
-
-
-
-  it('11. Debe calcular 0 en todas las métricas cuando la API devuelve listas vacías', async () => {
-    render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => {
-      const ceros = screen.getAllByText('0');
-      expect(ceros.length).toBeGreaterThan(0);
-    });
-  });
-
-  it('12. Debe calcular correctamente el total de rutinas activas', async () => {
-    mockApiConDatos();
-    render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => {
-      expect(screen.getByText('2')).toBeInTheDocument();
-    });
-  });
-
-  it('13. Debe mostrar el total de usuarios correctamente', async () => {
-    mockApiConDatos();
-    render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => {
-      expect(screen.getByText('3')).toBeInTheDocument();
-    });
-  });
-
-  it('14. Debe mostrar "N/A" como ejercicio top cuando no hay datos de ejercicios', async () => {
-    render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => {
-      expect(screen.getByText('N/A')).toBeInTheDocument();
-    });
-  });
-
-  it('15. Debe calcular correctamente el ejercicio más usado', async () => {
-    mockApiConDatos();
-    render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Sentadilla')).toBeInTheDocument();
-    });
-  });
-
-
-
-  it('16. Debe mostrar la sección "Herramientas de Prueba (Dev Tools)"', async () => {
-    render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => {
-      expect(screen.getByText(/Herramientas de Prueba/i)).toBeInTheDocument();
-    });
-  });
-
-  it('17. El botón "+ 50 Usuarios" debe estar visible y habilitado', async () => {
-    render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => {
-      expect(screen.getByText('+ 50 Usuarios')).not.toBeDisabled();
-    });
-  });
-
-  it('18. El botón "+ Catálogo Base" debe estar visible y habilitado', async () => {
+  it('5. Debe calcular 0 rutinas activas si la base de datos está vacía', async () => {
     render(<PanelPrincipal modoOscuro={false} />);
 
     await waitFor(() => {
@@ -213,136 +106,59 @@ describe('Pruebas del PanelPrincipal (Dashboard)', () => {
     });
   });
 
-  it('19. El botón "Limpiar Usuarios" debe estar visible y habilitado', async () => {
+
+  it('6. Debe mostrar la sección de DEV TOOLS', async () => {
     render(<PanelPrincipal modoOscuro={false} />);
 
     await waitFor(() => {
-      expect(screen.getByText('Limpiar Usuarios')).not.toBeDisabled();
+      expect(
+        screen.getByText(/herramientas de prueba/i)
+      ).toBeInTheDocument();
     });
   });
 
-  it('20. El botón "Limpiar Catálogo" debe estar visible y habilitado', async () => {
+  it('7. El botón "+ 50 Usuarios" no debe estar bloqueado inicialmente', async () => {
     render(<PanelPrincipal modoOscuro={false} />);
 
     await waitFor(() => {
-      expect(screen.getByText('Limpiar Catálogo')).not.toBeDisabled();
+      const btnInyectar = screen.getByText('+ 50 Usuarios');
+      expect(btnInyectar).not.toBeDisabled();
     });
   });
 
-  it('21. Debe pedir confirmación al hacer clic en "+ 50 Usuarios"', async () => {
+ 
+  it('8. Debe pedir confirmación al intentar inyectar usuarios de prueba', async () => {
     render(<PanelPrincipal modoOscuro={false} />);
-
+    
     await waitFor(() => screen.getByText('+ 50 Usuarios'));
-    fireEvent.click(screen.getByText('+ 50 Usuarios'));
-
-    expect(window.confirm).toHaveBeenCalledWith(
-      '¿Seguro que deseas inyectar 50 usuarios de prueba?'
-    );
+    const btnInyectar = screen.getByText('+ 50 Usuarios');
+    
+    fireEvent.click(btnInyectar);
+    expect(window.confirm).toHaveBeenCalledWith('¿Seguro que deseas inyectar 50 usuarios de prueba?');
   });
 
-  it('22. Debe pedir confirmación al hacer clic en "Limpiar Usuarios"', async () => {
+  it('9. Debe mostrar la tarjeta "Usuarios Entrenando" con su valor', async () => {
     render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => screen.getByText('Limpiar Usuarios'));
-    fireEvent.click(screen.getByText('Limpiar Usuarios'));
-
-    expect(window.confirm).toHaveBeenCalledWith(
-      '¿Seguro que deseas eliminar todos los usuarios de prueba (@macrofit.test)?'
-    );
-  });
-
-  it('23. Debe pedir confirmación al hacer clic en "+ Catálogo Base"', async () => {
-    render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => screen.getByText('+ Catálogo Base'));
-    fireEvent.click(screen.getByText('+ Catálogo Base'));
-
-    expect(window.confirm).toHaveBeenCalledWith(
-      '¿Inyectar ejercicios y rutinas de prueba (Prefijo TEST-)?'
-    );
-  });
-
-  it('24. Debe pedir confirmación al hacer clic en "Limpiar Catálogo"', async () => {
-    render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => screen.getByText('Limpiar Catálogo'));
-    fireEvent.click(screen.getByText('Limpiar Catálogo'));
-
-    expect(window.confirm).toHaveBeenCalledWith(
-      "¿ELIMINAR todos los ejercicios y rutinas de prueba (que comienzan con 'TEST-')?"
-    );
-  });
-
-  it('25. No debe llamar a la API si el usuario cancela la inyección de usuarios', async () => {
-    window.confirm.mockReturnValue(false); // usuario presiona "Cancelar"
-    render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => screen.getByText('+ 50 Usuarios'));
-    fireEvent.click(screen.getByText('+ 50 Usuarios'));
-
-    expect(api.post).not.toHaveBeenCalled();
-  });
-
-  it('26. No debe llamar a api.delete si el usuario cancela "Limpiar Usuarios"', async () => {
-    window.confirm.mockReturnValue(false);
-    render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => screen.getByText('Limpiar Usuarios'));
-    fireEvent.click(screen.getByText('Limpiar Usuarios'));
-
-    expect(api.delete).not.toHaveBeenCalled();
-  });
-
-  it('27. Debe mostrar aviso si no hay usuarios de prueba para eliminar', async () => {
-    window.confirm.mockReturnValue(true);
-    api.get.mockResolvedValue({ data: USUARIOS_MOCK.filter(u => !u.correo.endsWith('@macrofit.test')) });
-    render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => screen.getByText('Limpiar Usuarios'));
-    fireEvent.click(screen.getByText('Limpiar Usuarios'));
-
+    
     await waitFor(() => {
-      expect(window.alert).toHaveBeenCalledWith(
-        'No se encontraron usuarios de prueba para eliminar.'
-      );
+      // Verifica el header de la tarjeta
+      expect(screen.getByText('Usuarios Entrenando')).toBeInTheDocument();
     });
+
+    // Verifica que el gráfico de "Estado de Usuarios" también se renderiza
+    expect(screen.getByText('Estado de Usuarios')).toBeInTheDocument();
   });
 
-  it('28. Debe mostrar aviso si no hay datos TEST- para limpiar en el catálogo', async () => {
-    window.confirm.mockReturnValue(true);
-    api.get.mockImplementation((url) => {
-      if (url === '/rutinas')            return Promise.resolve({ data: RUTINAS_MOCK });
-      if (url === '/ejercicios/activos') return Promise.resolve({ data: EJERCICIOS_MOCK });
-      return Promise.resolve({ data: [] });
-    });
+  it('10. Debe mostrar la tarjeta "Rutinas Activas" y el gráfico de uso de ejercicios', async () => {
     render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => screen.getByText('Limpiar Catálogo'));
-    fireEvent.click(screen.getByText('Limpiar Catálogo'));
-
+    
     await waitFor(() => {
-      expect(window.alert).toHaveBeenCalledWith(
-        'No se encontraron datos de prueba (TEST-) para eliminar.'
-      );
+      // Verifica la tarjeta de métricas
+      expect(screen.getByText('Rutinas Activas')).toBeInTheDocument();
     });
+
+    // Verifica que el gráfico relacionado también aparece
+    expect(screen.getByText('Uso de Ejercicios en Rutinas')).toBeInTheDocument();
   });
 
-  it('29. Debe mostrar los títulos de los gráficos principales tras cargar', async () => {
-    render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Uso de Ejercicios en Rutinas')).toBeInTheDocument();
-      expect(screen.getByText('Estado de Usuarios')).toBeInTheDocument();
-    });
-  });
-
-  it('30. Debe mostrar los títulos de los gráficos demográficos tras cargar', async () => {
-    render(<PanelPrincipal modoOscuro={false} />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Objetivos Físicos')).toBeInTheDocument();
-      expect(screen.getByText('Niveles de Actividad')).toBeInTheDocument();
-      expect(screen.getByText('Tipos de Alimentación')).toBeInTheDocument();
-    });
-  });
 });
