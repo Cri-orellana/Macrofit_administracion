@@ -89,7 +89,7 @@ const HistorialUsuario = ({ modoOscuro }) => {
   if (error) return <Alert variant="danger" className="m-4">{error}</Alert>;
 
   return (
-    <div className={`min-vh-100 ${claseTexto}`} style={{ backgroundColor: fondoPantalla }}>
+    <div className={`min-vh-100 flup-main-content ${claseTexto}`} style={{ backgroundColor: fondoPantalla }}>
       <MenuNavegacion modoOscuro={modoOscuro} />
 
       <Container className="mt-4 pb-5">
