@@ -363,11 +363,11 @@ const Rutinas = ({ modoOscuro }) => {
                               Acciones
                             </Dropdown.Toggle>
                             <Dropdown.Menu variant={modoOscuro ? 'dark' : undefined}>
-                              <Dropdown.Item onClick={() => abrirModalAsignar(r)}>✅ Asignar</Dropdown.Item>
-                              <Dropdown.Item onClick={() => abrirModalEjercicios(r)}>📋 Ver Ejercicios</Dropdown.Item>
-                              <Dropdown.Item onClick={() => abrirModalEditarRutina(r)}>✏️ Editar</Dropdown.Item>
+                              <Dropdown.Item onClick={() => abrirModalAsignar(r)}> Asignar</Dropdown.Item>
+                              <Dropdown.Item onClick={() => abrirModalEjercicios(r)}> Ver Ejercicios</Dropdown.Item>
+                              <Dropdown.Item onClick={() => abrirModalEditarRutina(r)}> Editar</Dropdown.Item>
                               <Dropdown.Divider />
-                              <Dropdown.Item className="text-danger" onClick={() => eliminarRutina(r.idRutina)}>🗑️ Eliminar</Dropdown.Item>
+                              <Dropdown.Item className="text-danger" onClick={() => eliminarRutina(r.idRutina)}> Eliminar</Dropdown.Item>
                             </Dropdown.Menu>
                           </Dropdown>
                         </td>
@@ -404,10 +404,10 @@ const Rutinas = ({ modoOscuro }) => {
                                 Acciones
                               </Dropdown.Toggle>
                               <Dropdown.Menu variant={modoOscuro ? 'dark' : undefined}>
-                                <Dropdown.Item onClick={() => abrirModalVerEjercicio(e)}>👁️ Ver</Dropdown.Item>
-                                <Dropdown.Item onClick={() => abrirModalEditarEjercicio(e)}>✏️ Editar</Dropdown.Item>
+                                <Dropdown.Item onClick={() => abrirModalVerEjercicio(e)}> Ver</Dropdown.Item>
+                                <Dropdown.Item onClick={() => abrirModalEditarEjercicio(e)}> Editar</Dropdown.Item>
                                 <Dropdown.Divider />
-                                <Dropdown.Item className="text-danger" onClick={() => eliminarEjercicio(e.idEjercicio ?? e.id_ejercicio)}>🗑️ Borrar</Dropdown.Item>
+                                <Dropdown.Item className="text-danger" onClick={() => eliminarEjercicio(e.idEjercicio ?? e.id_ejercicio)}> Borrar</Dropdown.Item>
                               </Dropdown.Menu>
                             </Dropdown>
                           </td>

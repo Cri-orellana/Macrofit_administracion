@@ -161,7 +161,7 @@ const HistorialUsuario = ({ modoOscuro }) => {
           {/* Datos Personales */}
           <Col md={6}>
             <Card className={`h-100 ${claseTarjeta}`}>
-              <Card.Header className="fw-bold bg-primary text-white">👤 Datos Personales</Card.Header>
+              <Card.Header className="fw-bold bg-primary text-white"> Datos Personales</Card.Header>
               <Card.Body>
                 <Row>
                   <Col xs={6}><p><strong>Correo:</strong> {u.correo}</p></Col>
@@ -177,7 +177,7 @@ const HistorialUsuario = ({ modoOscuro }) => {
           {/* Métricas Nutricionales */}
           <Col md={6}>
             <Card className={`h-100 ${claseTarjeta}`}>
-              <Card.Header className="fw-bold bg-success text-white">🔥 Métricas Nutricionales</Card.Header>
+              <Card.Header className="fw-bold bg-success text-white"> Métricas Nutricionales</Card.Header>
               <Card.Body>
                 <Row className="text-center">
                   <Col xs={6} className="mb-3">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Container, Table, Form, Button, Card, Spinner, Alert, Modal, Row, Col } from 'react-bootstrap';
+import { Container, Table, Form, Button, Card, Spinner, Alert, Modal, Row, Col, Dropdown } from 'react-bootstrap';
 import MenuNavegacion from '../components/MenuNavegacion';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
@@ -141,18 +141,22 @@ const Usuarios = ({ modoOscuro }) => {
                             {u.rol}
                           </span>
                           </td>
-                        <td style={{ whiteSpace: 'nowrap' }}>
-                          <div className="d-flex gap-1">
-                            <Button variant="info" size="sm" className="text-white fw-bold"
-                              onClick={() => navegar(`/panel/usuarios/${u.id_usuario}`)}>
-                              Ver
-                            </Button>
-                            <Button variant="danger" size="sm" className="fw-bold"
-                              onClick={() => eliminarUsuario(u.id_usuario)}>
-                              Borrar
-                            </Button>
-                          </div>
-                        </td>
+                          <td className="text-center">
+                            <Dropdown>
+                              <Dropdown.Toggle
+                                variant={modoOscuro ? 'outline-light' : 'outline-secondary'}
+                                size="sm"
+                                id={`acciones-usuario-${u.id_usuario}`}
+                              >
+                                Acciones
+                              </Dropdown.Toggle>
+                              <Dropdown.Menu variant={modoOscuro ? 'dark' : undefined}>
+                                <Dropdown.Item onClick={() => navegar(`/panel/usuarios/${u.id_usuario}`)}> Ver</Dropdown.Item>
+                                <Dropdown.Divider />
+                                <Dropdown.Item className="text-danger" onClick={() => eliminarUsuario(u.id_usuario)}> Borrar</Dropdown.Item>
+                              </Dropdown.Menu>
+                            </Dropdown>
+                          </td>
                       </tr>
                     ))
                   ) : (

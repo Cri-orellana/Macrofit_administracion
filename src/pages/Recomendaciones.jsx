@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Container, Table, Button, Card, Modal, Form, Spinner, Alert, Badge } from 'react-bootstrap';
+import { Container, Table, Button, Card, Modal, Form, Spinner, Alert, Badge, Dropdown } from 'react-bootstrap';
 import MenuNavegacion from '../components/MenuNavegacion';
 import api from '../services/api';
 
@@ -226,15 +226,22 @@ const Recomendaciones = ({ modoOscuro }) => {
                       <td className="text-warning fw-bold">{c.carbohidratos_porcion ?? '—'}</td>
                       <td className="text-danger fw-bold">{c.grasa_porcion ?? '—'}</td>
                       <td>{c.cantidad_porcion ?? '—'}</td>
-                      <td style={{ whiteSpace: 'nowrap' }}>
-                        <div className="d-flex gap-1">
-                          <Button variant="info" size="sm" className="text-white fw-bold"
-                            onClick={() => abrirReceta(c)}>Ver</Button>
-                          <Button variant="warning" size="sm" className="fw-bold text-dark"
-                            onClick={() => abrirModalEditar(c)}>Editar</Button>
-                          <Button variant="danger" size="sm" className="fw-bold"
-                            onClick={() => eliminarComida(c.id)}>Borrar</Button>
-                        </div>
+                      <td className="text-center">
+                        <Dropdown>
+                          <Dropdown.Toggle
+                            variant={modoOscuro ? 'outline-light' : 'outline-secondary'}
+                            size="sm"
+                            id={`acciones-comida-${c.id}`}
+                          >
+                            Acciones
+                          </Dropdown.Toggle>
+                          <Dropdown.Menu variant={modoOscuro ? 'dark' : undefined}>
+                            <Dropdown.Item onClick={() => abrirReceta(c)}> Ver</Dropdown.Item>
+                            <Dropdown.Item onClick={() => abrirModalEditar(c)}> Editar</Dropdown.Item>
+                            <Dropdown.Divider />
+                            <Dropdown.Item className="text-danger" onClick={() => eliminarComida(c.id)}> Borrar</Dropdown.Item>
+                          </Dropdown.Menu>
+                        </Dropdown>
                       </td>
                     </tr>
                   )) : (

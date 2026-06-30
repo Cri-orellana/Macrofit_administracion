@@ -272,22 +272,22 @@ const PanelPrincipal = ({ modoOscuro }) => {
             {/* ── Tarjetas Superiores ── */}
             <div className="flup-metric-grid">
               <div className="flup-metric-card">
-                <div className="flup-metric-header"><span>👥</span> Usuarios Registrados</div>
+                <div className="flup-metric-header"><span></span> Usuarios Registrados</div>
                 <div className="flup-metric-value">{stats.totalUsuarios}</div>
                 <div className="flup-metric-trend trend-neutral">Total en plataforma</div>
               </div>
               <div className="flup-metric-card">
-                <div className="flup-metric-header"><span>🏃‍♂️</span> Usuarios Entrenando</div>
+                <div className="flup-metric-header"><span></span> Usuarios Entrenando</div>
                 <div className="flup-metric-value">{stats.usuariosActivos}</div>
                 <div className="flup-metric-trend trend-up">↗ {stats.usuariosInactivos} inactivos</div>
               </div>
               <div className="flup-metric-card">
-                <div className="flup-metric-header"><span>📋</span> Rutinas Activas</div>
+                <div className="flup-metric-header"><span></span> Rutinas Activas</div>
                 <div className="flup-metric-value">{stats.rutinasActivas}</div>
                 <div className="flup-metric-trend trend-neutral">De {stats.rutinasTotales} en catálogo</div>
               </div>
               <div className="flup-metric-card">
-                <div className="flup-metric-header"><span>🏋️‍♂️</span> Ejercicio Top</div>
+                <div className="flup-metric-header"><span></span> Ejercicio Top</div>
                 <div className="flup-metric-value" style={{ fontSize: '1.4rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {stats.ejercicioMasUsado.cantidad > 0 ? stats.ejercicioMasUsado.nombre : 'N/A'}
                 </div>
