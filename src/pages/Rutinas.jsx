@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Container, Table, Button, Card, Modal, Form, Badge, Spinner, Alert, Row, Col, InputGroup } from 'react-bootstrap';
+import { Container, Table, Button, Card, Modal, Form, Badge, Spinner, Alert, Row, Col, InputGroup, Dropdown } from 'react-bootstrap';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import MenuNavegacion from '../components/MenuNavegacion';
 import api from '../services/api';
@@ -353,11 +353,23 @@ const Rutinas = ({ modoOscuro }) => {
                         <td className="fw-bold align-middle">{r.nombreRutina ?? '—'}</td>
                         <td className="text-truncate align-middle" style={{ maxWidth: 250 }}>{r.descripcion ?? '—'}</td>
                         <td className="align-middle"><Badge bg={r.activoCatalogo ? 'success' : 'secondary'}>{r.activoCatalogo ? 'Activa' : 'Inactiva'}</Badge></td>
-                        <td className="align-middle" style={{ whiteSpace: 'nowrap' }}>
-                          <Button variant="success" size="sm" className="me-1 fw-bold" onClick={() => abrirModalAsignar(r)}>Asignar</Button>
-                          <Button variant="info"    size="sm" className="me-1 text-white fw-bold" onClick={() => abrirModalEjercicios(r)}>Ver Ejercicios</Button>
-                          <Button variant="warning" size="sm" className="me-1 fw-bold text-dark"  onClick={() => abrirModalEditarRutina(r)}>Editar</Button>
-                          <Button variant="danger"  size="sm" className="fw-bold" onClick={() => eliminarRutina(r.idRutina)}>Eliminar</Button>
+                        <td className="align-middle text-center">
+                          <Dropdown>
+                            <Dropdown.Toggle
+                              variant={modoOscuro ? 'outline-light' : 'outline-secondary'}
+                              size="sm"
+                              id={`acciones-rutina-${r.idRutina}`}
+                            >
+                              Acciones
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu variant={modoOscuro ? 'dark' : undefined}>
+                              <Dropdown.Item onClick={() => abrirModalAsignar(r)}>✅ Asignar</Dropdown.Item>
+                              <Dropdown.Item onClick={() => abrirModalEjercicios(r)}>📋 Ver Ejercicios</Dropdown.Item>
+                              <Dropdown.Item onClick={() => abrirModalEditarRutina(r)}>✏️ Editar</Dropdown.Item>
+                              <Dropdown.Divider />
+                              <Dropdown.Item className="text-danger" onClick={() => eliminarRutina(r.idRutina)}>🗑️ Eliminar</Dropdown.Item>
+                            </Dropdown.Menu>
+                          </Dropdown>
                         </td>
                       </tr>
                     )) : <tr><td colSpan="4" className="text-center py-4">No hay rutinas.</td></tr>}
@@ -382,10 +394,22 @@ const Rutinas = ({ modoOscuro }) => {
                           <td>{e.implemento ?? '—'}</td>
                           <td>{e.nivelDificultad ?? '—'}</td>
                           <td><Badge bg={e.activoCatalogo ? 'success' : 'secondary'}>{e.activoCatalogo ? 'Sí' : 'No'}</Badge></td>
-                          <td>
-                            <Button variant="outline-primary" size="sm" className="me-1" onClick={() => abrirModalVerEjercicio(e)}>Ver</Button>
-                            <Button variant="outline-warning" size="sm" className="me-1 text-dark" onClick={() => abrirModalEditarEjercicio(e)}>Editar</Button>
-                            <Button variant="outline-danger" size="sm" onClick={() => eliminarEjercicio(e.idEjercicio ?? e.id_ejercicio)}>Borrar</Button>
+                          <td className="text-center">
+                            <Dropdown>
+                              <Dropdown.Toggle
+                                variant={modoOscuro ? 'outline-light' : 'outline-secondary'}
+                                size="sm"
+                                id={`acciones-ejercicio-${e.idEjercicio ?? e.id_ejercicio}`}
+                              >
+                                Acciones
+                              </Dropdown.Toggle>
+                              <Dropdown.Menu variant={modoOscuro ? 'dark' : undefined}>
+                                <Dropdown.Item onClick={() => abrirModalVerEjercicio(e)}>👁️ Ver</Dropdown.Item>
+                                <Dropdown.Item onClick={() => abrirModalEditarEjercicio(e)}>✏️ Editar</Dropdown.Item>
+                                <Dropdown.Divider />
+                                <Dropdown.Item className="text-danger" onClick={() => eliminarEjercicio(e.idEjercicio ?? e.id_ejercicio)}>🗑️ Borrar</Dropdown.Item>
+                              </Dropdown.Menu>
+                            </Dropdown>
                           </td>
                         </tr>
                       )) : <tr><td colSpan="7" className="text-center py-4">No hay ejercicios.</td></tr>}
