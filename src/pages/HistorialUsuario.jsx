@@ -92,7 +92,7 @@ const HistorialUsuario = ({ modoOscuro }) => {
     <div className={`min-vh-100 flup-main-content ${claseTexto}`} style={{ backgroundColor: fondoPantalla }}>
       <MenuNavegacion modoOscuro={modoOscuro} />
 
-      <Container className="mt-4 pb-5">
+      <Container fluid className="mt-4 pb-5">
         <Button variant="secondary" className="mb-4 fw-bold" onClick={() => navegar(-1)}>← Volver a Usuarios</Button>
 
         <h2 className="fw-bold mb-4">
