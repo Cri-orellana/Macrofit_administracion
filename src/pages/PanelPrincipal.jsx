@@ -67,8 +67,10 @@ const PanelPrincipal = ({ modoOscuro }) => {
       }).sort((a, b) => b.asignaciones - a.asignaciones);
       const rutinaMasUsada = topRutinasData.length > 0 ? topRutinasData[0] : { nombre: 'Ninguna', asignaciones: 0 };
 
-      const usuariosActivos = usuariosActivosSet.size;
-      const usuariosInactivos = usuarios.length - usuariosActivos;
+      const idsUsuariosExistentes = new Set(usuarios.map(u => u.id_usuario));
+      const usuariosActivos = [...usuariosActivosSet].filter(id => idsUsuariosExistentes.has(id)).length;
+
+      const usuariosInactivos = Math.max(0, usuarios.length - usuariosActivos);
 
       setStats({
         rutinasActivas, rutinasTotales: rutinas.length,
