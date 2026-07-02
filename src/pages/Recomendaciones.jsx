@@ -5,37 +5,37 @@ import api from '../services/api';
 
 const colorTipo = (nombre) => {
   switch (nombre?.toLowerCase()) {
-    case 'vegana':       return 'success';
-    case 'vegetariana':  return 'info';
-    case 'keto':         return 'danger';
-    default:             return 'warning';
+    case 'vegana': return 'success';
+    case 'vegetariana': return 'info';
+    case 'keto': return 'danger';
+    default: return 'warning';
   }
 };
 
 const Recomendaciones = ({ modoOscuro }) => {
-  const [comidas,   setComidas]   = useState([]);
-  const [tipos,     setTipos]     = useState([]);
-  const [cargando,  setCargando]  = useState(true);
-  const [error,     setError]     = useState('');
+  const [comidas, setComidas] = useState([]);
+  const [tipos, setTipos] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState('');
 
-  const [modalReceta,   setModalReceta]   = useState(false);
-  const [recetaActiva,  setRecetaActiva]  = useState(null);
+  const [modalReceta, setModalReceta] = useState(false);
+  const [recetaActiva, setRecetaActiva] = useState(null);
   const [editandoReceta, setEditandoReceta] = useState(false);
 
-  const [modalNueva,   setModalNueva]   = useState(false);
-  const [editandoId,   setEditandoId]   = useState(null);
+  const [modalNueva, setModalNueva] = useState(false);
+  const [editandoId, setEditandoId] = useState(null);
   const [form, setForm] = useState({
     nombre_comida: '', descripcion_comida: '', cantidad_porcion: '100g',
     calorias_porcion: '', proteina_porcion: '', carbohidratos_porcion: '',
     grasa_porcion: '', id_tipo_alimentacion: ''
   });
 
-  const claseTexto   = modoOscuro ? 'text-light' : 'text-dark';
+  const claseTexto = modoOscuro ? 'text-light' : 'text-dark';
   const claseTarjeta = modoOscuro ? 'bg-dark text-light border-secondary' : 'bg-white text-dark shadow-sm';
-  const claseTabla   = modoOscuro ? 'table-dark' : 'table-light';
-  const fondoPantalla= modoOscuro ? 'rgba(18,18,18,0.85)' : 'rgba(255,255,255,0.85)';
-  const claseInput   = modoOscuro ? 'bg-secondary text-light border-secondary' : '';
-  const claseModal   = modoOscuro ? 'bg-dark text-light' : 'bg-white text-dark';
+  const claseTabla = modoOscuro ? 'table-dark' : 'table-light';
+  const fondoPantalla = modoOscuro ? 'rgba(18,18,18,0.85)' : 'rgba(255,255,255,0.85)';
+  const claseInput = modoOscuro ? 'bg-secondary text-light border-secondary' : '';
+  const claseModal = modoOscuro ? 'bg-dark text-light' : 'bg-white text-dark';
 
   useEffect(() => {
     const cargar = async () => {
@@ -102,14 +102,14 @@ const Recomendaciones = ({ modoOscuro }) => {
   const abrirModalEditar = (comida) => {
     setEditandoId(comida.id_comida);
     setForm({
-      nombre_comida:         comida.nombre_comida         ?? '',
-      descripcion_comida:    comida.descripcion_comida    ?? '',
-      cantidad_porcion:      comida.cantidad_porcion      ?? '100g',
-      calorias_porcion:      comida.calorias_porcion      ?? '',
-      proteina_porcion:      comida.proteina_porcion      ?? '',
+      nombre_comida: comida.nombre_comida ?? '',
+      descripcion_comida: comida.descripcion_comida ?? '',
+      cantidad_porcion: comida.cantidad_porcion ?? '100g',
+      calorias_porcion: comida.calorias_porcion ?? '',
+      proteina_porcion: comida.proteina_porcion ?? '',
       carbohidratos_porcion: comida.carbohidratos_porcion ?? '',
-      grasa_porcion:         comida.grasa_porcion         ?? '',
-      id_tipo_alimentacion:  comida.tipo_alimentacion?.id_tipo_alimentacion ?? ''
+      grasa_porcion: comida.grasa_porcion ?? '',
+      id_tipo_alimentacion: comida.tipo_alimentacion?.id_tipo_alimentacion ?? ''
     });
     setModalNueva(true);
   };
@@ -118,14 +118,14 @@ const Recomendaciones = ({ modoOscuro }) => {
     e.preventDefault();
     const tipoSeleccionado = tipos.find(t => t.id_tipo_alimentacion === parseInt(form.id_tipo_alimentacion));
     const payload = {
-      nombre_comida:         form.nombre_comida,
-      descripcion_comida:    form.descripcion_comida,
-      cantidad_porcion:      form.cantidad_porcion,
-      calorias_porcion:      parseFloat(form.calorias_porcion),
-      proteina_porcion:      parseFloat(form.proteina_porcion),
+      nombre_comida: form.nombre_comida,
+      descripcion_comida: form.descripcion_comida,
+      cantidad_porcion: form.cantidad_porcion,
+      calorias_porcion: parseFloat(form.calorias_porcion),
+      proteina_porcion: parseFloat(form.proteina_porcion),
       carbohidratos_porcion: parseFloat(form.carbohidratos_porcion),
-      grasa_porcion:         parseFloat(form.grasa_porcion),
-      tipo_alimentacion:     tipoSeleccionado ? { id_tipo_alimentacion: tipoSeleccionado.id_tipo_alimentacion } : null
+      grasa_porcion: parseFloat(form.grasa_porcion),
+      tipo_alimentacion: tipoSeleccionado ? { id_tipo_alimentacion: tipoSeleccionado.id_tipo_alimentacion } : null
     };
     try {
       if (editandoId) {
@@ -155,6 +155,7 @@ const Recomendaciones = ({ modoOscuro }) => {
     <div className={`flup-main-content min-vh-100 ${claseTexto}`} style={{ backgroundColor: fondoPantalla }}>
       <MenuNavegacion modoOscuro={modoOscuro} />
 
+      <div className="w-100">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2 className="fw-bold m-0">Administrar Recomendaciones</h2>
           <Button variant="primary" className="fw-bold" onClick={abrirModalNueva}>
@@ -175,7 +176,7 @@ const Recomendaciones = ({ modoOscuro }) => {
               try {
                 const res = await api.get('/nutricion/comidas');
                 alert(`Status: ${res.status}\nItems: ${res.data?.length ?? '?'}\nPrimero: ${JSON.stringify(res.data?.[0] ?? {}, null, 2)}`);
-              } catch(e) {
+              } catch (e) {
                 alert(`ERROR: ${e?.response?.status} ${e?.message}\n${JSON.stringify(e?.response?.data ?? {})}`);
               }
             }}>Probar /nutricion/comidas</Button>
@@ -184,83 +185,86 @@ const Recomendaciones = ({ modoOscuro }) => {
               try {
                 const res = await api.get('/nutricion/tipos-dieta');
                 alert(`Status: ${res.status}\nItems: ${res.data?.length ?? '?'}\nData: ${JSON.stringify(res.data ?? [], null, 2)}`);
-              } catch(e) {
+              } catch (e) {
                 alert(`ERROR: ${e?.response?.status} ${e?.message}\n${JSON.stringify(e?.response?.data ?? {})}`);
               }
             }}>Probar /nutricion/tipos-dieta</Button>
           </Alert>
         )}
 
-        <Card className={claseTarjeta}>
-          <Card.Body>
+        <Card className={`${claseTarjeta} w-100`}>
+          <Card.Body className="p-0 p-md-3">
             {cargando ? (
               <div className="text-center py-5">
                 <Spinner animation="border" variant="primary" />
                 <p className="mt-2">Cargando recomendaciones...</p>
               </div>
             ) : (
-              <Table responsive striped bordered hover className={claseTabla}>
-                <thead>
-                  <tr>
-                    <th>Nombre del Plato</th>
-                    <th>Tipo</th>
-                    <th>Calorías</th>
-                    <th>Proteínas (g)</th>
-                    <th>Carbohidratos (g)</th>
-                    <th>Grasas (g)</th>
-                    <th>Porción</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {comidas.length > 0 ? comidas.map((c) => (
-                    <tr key={c.id}>
-                      <td className="fw-bold">{c.nombre_comida}</td>
-                      <td>
-                        <Badge bg={colorTipo(c.tipo_alimentacion?.nombre_tipo)}>
-                          {c.tipo_alimentacion?.nombre_tipo ?? '—'}
-                        </Badge>
-                      </td>
-                      <td>{c.calorias_porcion ?? '—'} kcal</td>
-                      <td className="text-info fw-bold">{c.proteina_porcion ?? '—'}</td>
-                      <td className="text-warning fw-bold">{c.carbohidratos_porcion ?? '—'}</td>
-                      <td className="text-danger fw-bold">{c.grasa_porcion ?? '—'}</td>
-                      <td>{c.cantidad_porcion ?? '—'}</td>
-                      <td className="text-center">
-                        <Dropdown>
-                          <Dropdown.Toggle
-                            variant={modoOscuro ? 'outline-light' : 'outline-secondary'}
-                            size="sm"
-                            id={`acciones-comida-${c.id}`}
-                          >
-                            Acciones
-                          </Dropdown.Toggle>
-                          <Dropdown.Menu variant={modoOscuro ? 'dark' : undefined}>
-                            <Dropdown.Item onClick={() => abrirReceta(c)}> Ver</Dropdown.Item>
-                            <Dropdown.Item onClick={() => abrirModalEditar(c)}> Editar</Dropdown.Item>
-                            <Dropdown.Divider />
-                            <Dropdown.Item className="text-danger" onClick={() => eliminarComida(c.id)}> Borrar</Dropdown.Item>
-                          </Dropdown.Menu>
-                        </Dropdown>
-                      </td>
-                    </tr>
-                  )) : (
+              <div style={{ width: '100%', overflowX: 'scroll', maxHeight: '480px', overflowY: 'auto' }}>
+                <Table striped bordered hover className={`${claseTabla} w-100 align-middle mb-0`}>
+                  <thead>
                     <tr>
-                      <td colSpan="8" className="text-center py-4">
-                        No hay recomendaciones registradas.
-                        {import.meta.env.DEV && (
-                          <div className="mt-2 text-muted" style={{ fontSize: '0.8rem' }}>
-                            Si esperas datos, abre F12 → Consola y revisa los logs <code>[Recomendaciones]</code>
-                          </div>
-                        )}
-                      </td>
+                      <th>Nombre del Plato</th>
+                      <th>Acciones</th>
+                      <th>Calorías</th>
+                      <th>Proteínas (g)</th>
+                      <th>Carbohidratos (g)</th>
+                      <th>Grasas (g)</th>
+                      <th>Porción</th>
+                      <th>Tipo</th>
                     </tr>
-                  )}
-                </tbody>
-              </Table>
+                  </thead>
+                  <tbody>
+                    {comidas.length > 0 ? comidas.map((c) => (
+                      <tr key={c.id}>
+                        <td className="fw-bold">{c.nombre_comida}</td>
+                        <td className="text-center">
+                          <Dropdown>
+                            <Dropdown.Toggle
+                              variant={modoOscuro ? 'outline-light' : 'outline-secondary'}
+                              size="sm"
+                              id={`acciones-comida-${c.id}`}
+                            >
+                              Acciones
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu variant={modoOscuro ? 'dark' : undefined}>
+                              <Dropdown.Item onClick={() => abrirReceta(c)}> Ver</Dropdown.Item>
+                              <Dropdown.Item onClick={() => abrirModalEditar(c)}> Editar</Dropdown.Item>
+                              <Dropdown.Divider />
+                              <Dropdown.Item className="text-danger" onClick={() => eliminarComida(c.id)}> Borrar</Dropdown.Item>
+                            </Dropdown.Menu>
+                          </Dropdown>
+                        </td>
+                        <td>{c.calorias_porcion ?? '—'} kcal</td>
+                        <td className="text-info fw-bold">{c.proteina_porcion ?? '—'}</td>
+                        <td className="text-warning fw-bold">{c.carbohidratos_porcion ?? '—'}</td>
+                        <td className="text-danger fw-bold">{c.grasa_porcion ?? '—'}</td>
+                        <td>{c.cantidad_porcion ?? '—'}</td>
+                        <td>
+                          <Badge bg={colorTipo(c.tipo_alimentacion?.nombre_tipo)}>
+                            {c.tipo_alimentacion?.nombre_tipo ?? '—'}
+                          </Badge>
+                        </td>
+                      </tr>
+                    )) : (
+                      <tr>
+                        <td colSpan="8" className="text-center py-4">
+                          No hay recomendaciones registradas.
+                          {import.meta.env.DEV && (
+                            <div className="mt-2 text-muted" style={{ fontSize: '0.8rem' }}>
+                              Si esperas datos, abre F12 → Consola y revisa los logs <code>[Recomendaciones]</code>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </Table>
+              </div>
             )}
           </Card.Body>
         </Card>
+      </div>
 
       {/* ══ MODAL: Ver Receta ══════════════════════════════════════════════════ */}
       <Modal show={modalReceta} onHide={() => setModalReceta(false)} centered size="lg">
@@ -345,10 +349,10 @@ const Recomendaciones = ({ modoOscuro }) => {
                   </div>
                   <div className="row text-center mb-4">
                     {[
-                      { label: 'Calorías',      value: `${recetaActiva.calorias_porcion ?? '—'} kcal`, color: 'text-primary' },
-                      { label: 'Proteínas',     value: `${recetaActiva.proteina_porcion ?? '—'} g`,    color: 'text-info' },
+                      { label: 'Calorías', value: `${recetaActiva.calorias_porcion ?? '—'} kcal`, color: 'text-primary' },
+                      { label: 'Proteínas', value: `${recetaActiva.proteina_porcion ?? '—'} g`, color: 'text-info' },
                       { label: 'Carbohidratos', value: `${recetaActiva.carbohidratos_porcion ?? '—'} g`, color: 'text-warning' },
-                      { label: 'Grasas',        value: `${recetaActiva.grasa_porcion ?? '—'} g`,       color: 'text-danger' },
+                      { label: 'Grasas', value: `${recetaActiva.grasa_porcion ?? '—'} g`, color: 'text-danger' },
                     ].map(({ label, value, color }) => (
                       <div key={label} className="col-3">
                         <div className={`${modoOscuro ? 'bg-secondary' : 'bg-light'} rounded p-2`}>
